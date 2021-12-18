@@ -48,11 +48,11 @@ World.prototype.update = function(events) {
 		if (event.tick == this.tick) {
 			switch (event.name) {
 				case "activate":
-					for (let part of this.vehicles[event.opponentId].controls[event.controlIndex].parts)
+					for (let part of this.vehicles[event.opponentIndex].controls[event.controlIndex].parts)
 						part.activated = true;
 					break;
 				case "disactivate":
-					for (let part of this.vehicles[event.opponentId].controls[event.controlIndex].parts)
+					for (let part of this.vehicles[event.opponentIndex].controls[event.controlIndex].parts)
 						part.activated = false;
 					break;
 				default:

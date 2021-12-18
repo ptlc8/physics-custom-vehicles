@@ -14,8 +14,6 @@ function Player(name) {
 	this.vehicles = [];
 	// identifiant de la game dans laquelle il est
 	this.game = undefined;
-	// identifiant d'aversaire (en jeu uniquement)
-	this.opponentId = undefined;
 	// Don de tous les items à la création du joueur
 	for (let item of Items) {
 		this.inventory[item.id] = {amount:20};

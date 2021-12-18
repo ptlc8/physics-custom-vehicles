@@ -40,9 +40,10 @@ PcvServer.prototype.broadcast = function(object) {}
 PcvServer.prototype.broadcastGame = function(gameId, object) {
 	let game = this.games[gameId];
 	if (game === undefined) return;
-	for (let playerId in this.players)
-		if (game.opponents[playerId] !== undefined || game.spectators[playerId] !== undefined)
-			this.send(playerId, object);
+	for (let connectionId of game.opponents)
+		this.send(connectionId, object);
+	for (let connectionId of game.spectators)
+		this.send(connectionId, object);
 }
 
 PcvServer.prototype.commands = {};
@@ -100,10 +101,9 @@ PcvServer.prototype.commands.startsolo = {
 	execute: function(connectionId, args) {
 		let map = new Map(Map.createSinusoidalGround(), [[0,0]]);
 		let vehiclesPatterns = [args.vehiclePattern];
-		let opponents = [this.players[connectionId]];
+		let opponents = [connectionId];
 		let gameId = this.idIncrementer++;
 		this.players[connectionId].game = gameId;
-		this.players[connectionId].opponentId = 0;
 		this.games[gameId] = new Game(map, Gamemodes.SOLO, vehiclesPatterns, opponents);
 		this.games[gameId].start();
 		console.log("[pcv] Nouvelle partie solo");
@@ -126,7 +126,7 @@ PcvServer.prototype.commands.activate = {
 			return {error:"Not in game"};
 		if (typeof args.index != "number" || args.index < 0)
 			return {error:"Invalid index"};
-		var event = this.games[gameId].activate(this.players[connectionId].opponentId, args.index, args.tag);
+		var event = this.games[gameId].activate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
 };
@@ -140,7 +140,7 @@ PcvServer.prototype.commands.disactivate = {
 			return {error:"Not in game"};
 		if (typeof args.index != "number" || args.index < 0)
 			return {error:"Invalid index"};
-		var event = this.games[gameId].disactivate(this.players[connectionId].opponentId, args.index, args.tag);
+		var event = this.games[gameId].disactivate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
 };
@@ -158,7 +158,7 @@ PcvServer.prototype.commands.spectate = {
 			return {error:"Not in game"};
 		this.players[connectionId].game = gameId;
 		let game = this.games[gameId];
-		game.spectators[connectionId] = this.players[connectionId];
+		game.spectators.push(connectionId);
 		return {
 			command: "spectate",
 			map: game.map,
@@ -184,19 +184,17 @@ PcvServer.prototype.commands.startmatch = {
 			let opponents = [];
 			let gameId = this.idIncrementer++;
 			vehiclesPatterns.push(args.vehiclePattern);
-			opponents.push(this.players[connectionId]);
+			opponents.push(connectionId);
 			this.players[connectionId].game = gameId;
-			this.players[connectionId].opponentId = 0;
 			for (let i = 0; i < gamemode.players-1; i++) {
 				let opponent = this.waitingPlayers.shift();
 				vehiclesPatterns.push(opponent.vehiclePattern);
-				opponents.push(this.players[opponent.id]);
+				opponents.push(opponent.id);
 				this.players[opponent.id].game = gameId;
-				this.players[opponent.id].opponentId = i+1;
 			}
 			this.games[gameId] = new Game(map, gamemode, vehiclesPatterns, opponents);
 			this.games[gameId].start();
-			console.log("[pcv] Nouveau match ("+Object.keys(opponents).join(" vs ")+")");
+			console.log("[pcv] Nouveau match ("+opponents.join(" vs ")+")");
 			this.broadcastGame(gameId, {
 				command: "start",
 				map: map,

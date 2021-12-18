@@ -15,10 +15,10 @@ function Game(map, gamemode, vehiclesPatterns=[], opponents=[]) {
 	this.gamemode = gamemode;
 	// Patterns des véhicules de la partie
 	this.vehiclesPatterns = vehiclesPatterns;
-	// Liste des opposants par identifiant
+	// Liste des identifiants des opposants
 	this.opponents = opponents;
-	// Liste des spectateurs par identifiant
-	this.spectators = {};
+	// Liste des identifiants des spectateurs
+	this.spectators = [];
 	// Monde de actuel de la partie
 	this.world = new World(map, vehiclesPatterns);
 	// Liste des évents qui se sont déroulés (activation, désactivation...) par ordre chronologique
@@ -84,11 +84,19 @@ Game.prototype.insertEvent = function(index, tick, event) {
 }
 
 // ajoute l'évent d'activation d'un contrôle
-Game.prototype.activate = function(opponentId, controlIndex, tag=undefined, unreal=false) {
-	return this.pushEvent({name:"activate",opponentId:opponentId,controlIndex:controlIndex,tag:tag}, unreal);
+Game.prototype.activate = function(playerId, controlIndex, tag=undefined, unreal=false) {
+	return this.pushEvent({name:"activate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
 }
 
 // ajoute l'évent de désactivation d'un contrôle
-Game.prototype.disactivate = function(opponentId, controlIndex, tag=undefined, unreal=false) {
-	return this.pushEvent({name:"disactivate",opponentId:opponentId,controlIndex:controlIndex,tag:tag}, unreal);
+Game.prototype.disactivate = function(playerId, controlIndex, tag=undefined, unreal=false) {
+	return this.pushEvent({name:"disactivate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
+}
+
+// retourne l'indice d'un joueur selon l'ordre des opposants
+Game.prototype.getPlayerIndex = function(playerId) {
+	for (let index in this.opponents)
+		if (this.opponents[index] == playerId)
+			return index;
+	return undefined; 
 }

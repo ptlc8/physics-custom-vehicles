@@ -89,10 +89,7 @@ commands.logged = function(args) { // self, selfId
 // Lorsqu'une instance de jeu démarre
 commands.start = function(args) { // map, vehiclesPatterns, opponents, gamemode
 	var map = Map.cast(args.map);
-	var opponents = {};
-	for (let k of Object.keys(args.opponents))
-		opponents[k] = Player.cast(args.opponents[k]);
-	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, opponents);
+	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
 	engine.setCameraSize(20);
 	state = State.PLAY;
 	game.start();
@@ -101,13 +98,10 @@ commands.start = function(args) { // map, vehiclesPatterns, opponents, gamemode
 // Lorsque l'on devient spectateur d'un jeu
 commands.spectate = function(args) { // map, vehiclesPatterns, opponents, events, tick
 	var map = Map.cast(args.map);
-	opponents = {};
-	for (let k of Object.keys(args.opponents))
-		opponents[k] = Player.cast(args.opponents[k]);
-	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, opponents);
+	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
 	game.events = args.events;
 	game.world.tick = args.tick;
-	spectatedPlayerId = Object.keys(game.opponents)[0];
+	//spectatedPlayerId = Object.keys(game.opponents)[0];
 	engine.setCameraSize(20);
 	state = State.SPECTATE;
 	game.start();
@@ -143,15 +137,16 @@ function render(wctx, rctx, rendererRatio) {
 	if ((state == State.PLAY || state == State.SPECTATE) && game!==undefined) {
 		// Centrage de la caméra sur le véhicule du joueur
 		let playerIdToFollow = state==State.PLAY ? selfPlayer.id : state==State.SPECTATE ? spectatedPlayerId : undefined;
-		if (game.world.vehicles[playerIdToFollow] !== undefined) {
-			let toFollow = game.world.vehicles[playerIdToFollow].pos;
+		let opponentIndexToFollow = game.getPlayerIndex(playerIdToFollow);
+		if (game.world.vehicles[opponentIndexToFollow] !== undefined) {
+			let toFollow = game.world.vehicles[opponentIndexToFollow].pos;
 			engine.setCameraPos(toFollow?toFollow.get_x():0, toFollow?toFollow.get_y():0);
 		}
 		// Affichage des arrivées
 		for (let spawn of game.map.spawns) {
 			wctx.drawImage(getImage("finish"), spawn[0]-1, spawn[1]-2, 2, 4);
 		}
-		for (const [playerId,vehicle] of Object.entries(game.world.vehicles)) {
+		for (const [index,vehicle] of Object.entries(game.world.vehicles)) {
 			// Véhicules
 			for (let line of vehicle.parts) for (let part of line) {
 				if (part == undefined) continue;
@@ -159,9 +154,9 @@ function render(wctx, rctx, rendererRatio) {
 				if (part.contained)
 					wctx.drawImage(getImage(part.contained.id), part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), .9, .9, part.body.GetAngle());
 				if (part.id == "player" || (part.contained && part.contained.id == "player"))
-					wctx.drawText("Joueur "+playerId, part.body.GetPosition().get_x(), part.body.GetPosition().get_y()-1, .5, "white", 0, "black", "center");
+					wctx.drawText("Joueur "+game.opponents[index], part.body.GetPosition().get_x(), part.body.GetPosition().get_y()-1, .5, "white", 0, "black", "center");
 			}
-			if (playerId==selfPlayer.id) {
+			if (index==opponentIndexToFollow) {
 				// Affichage des contrôles du véhicule du joueur
 				for (let i = 0; i < vehicle.controls.length; i++) {
 					rctx.drawRect("#A0A0A0", i*40-(20*vehicle.controls.length)+20+2, 80+2, 30, 30);
@@ -238,7 +233,7 @@ function onMouseDown(e) {
 		}
 		// Bouton spectate
 		if (Math.sqrt(Math.pow(e.rx+120, 2)+Math.pow(e.ry+30, 2)) < 10) {
-			server.send("spectate", {playerId: parseInt(prompt("Quel est l'identifiant du joueur à regarder ?"))});
+			spectate(parseInt(prompt("Quel est l'identifiant du joueur à regarder ?")));
 			return;
 		}
 		// Barre d'inventaire
@@ -293,9 +288,10 @@ function onMouseDown(e) {
 	}
 	if (state == State.PLAY && game!=undefined && e.button == 0) {
 		if (65 < e.ry && e.ry < 95) { // controls bar
-			let controlIndex = Math.floor((e.rx+game.world.vehicles[selfPlayer.id].controls.length*20)/40);
-			if (0 <= controlIndex && controlIndex < game.world.vehicles[selfPlayer.id].controls.length) {
-				if (game.world.vehicles[selfPlayer.id].controls[controlIndex].parts[0].activated)
+			let playerIndex = game.getPlayerIndex(selfPlayer.id);
+			let controlIndex = Math.floor((e.rx+game.world.vehicles[playerIndex].controls.length*20)/40);
+			if (0 <= controlIndex && controlIndex < game.world.vehicles[playerIndex].controls.length) {
+				if (game.world.vehicles[playerIndex].controls[controlIndex].parts[0].activated)
 					disactivate(controlIndex);
 				else 
 					activate(controlIndex);
@@ -351,8 +347,9 @@ function onKeyDown(e) {
 		for (let i = 0; i < ControlKeys.length; i++)
 			if (ControlKeys[i].code == e.code) controlIndex = i;
 		if (controlIndex==undefined) return;
-		if (0 <= controlIndex && controlIndex < game.world.vehicles[selfPlayer.id].controls.length) {
-			if (game.world.vehicles[selfPlayer.id].controls[controlIndex].parts[0].activated)
+		let playerIndex = game.getPlayerIndex(selfPlayer.id);
+		if (0 <= controlIndex && controlIndex < game.world.vehicles[playerIndex].controls.length) {
+			if (game.world.vehicles[playerIndex].controls[controlIndex].parts[0].activated)
 				disactivate(controlIndex);
 			else 
 				activate(controlIndex);
@@ -383,22 +380,21 @@ function disactivate(index) {
 
 function spectate(playerId) {
 	server.send("spectate", {playerId:playerId});
+	spectatedPlayerId = playerId;
 }
 
 function spectateNext() {
-	var opponentsIds = Object.keys(game.opponents);
-	if (spectatedPlayerId == opponentsIds[opponentsIds.length-1])
-		spectatedPlayerId = opponentsIds[0];
+	if (spectatedPlayerId == game.opponents[game.opponents.length-1])
+		spectatedPlayerId = game.opponents[0];
 	else
-		spectatedPlayerId = opponentsIds.find((e,i,a)=>a[i-1]==spectatedPlayerId);
+		spectatedPlayerId = game.opponents[game.opponents.indexOf(spectatedPlayerId)+1];
 }
 
 function spectatePrevious() {
-	var opponentsIds = Object.keys(game.opponents);
-	if (spectatedPlayerId == opponentsIds[0])
-		spectatedPlayerId = opponentsIds[opponentsIds.length-1];
+	if (spectatedPlayerId == game.opponents[0])
+		spectatedPlayerId = game.opponents[game.opponents.length-1];
 	else
-		spectatedPlayerId = opponentsIds.find((e,i,a)=>a[i+1]==spectatedPlayerId);
+		spectatedPlayerId = game.opponents[game.opponents.indexOf(spectatedPlayerId)-1];
 }
 
 
