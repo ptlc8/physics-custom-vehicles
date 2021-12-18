@@ -1,0 +1,11 @@
+{
+  "name": "pcv-server",
+  "version": "0.0.1",
+  "description": "Physics custom vehicles multiplayer server",
+  "dependencies": {
+    "bufferutil": "^4.0.3",
+    "node-static": "^0.7.11",
+    "utf-8-validate": "^5.0.4",
+    "ws": "^7.4.3"
+  }
+}
