@@ -101,10 +101,10 @@ commands.spectate = function(args) { // map, vehiclesPatterns, opponents, events
 	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
 	game.events = args.events;
 	game.world.tick = args.tick;
-	//spectatedPlayerId = Object.keys(game.opponents)[0];
 	engine.setCameraSize(20);
 	state = State.SPECTATE;
 	game.start();
+	game.regenerate();
 }
 
 // Lorqu'un évent se produit lors d'un match, ex : activate, disactivate

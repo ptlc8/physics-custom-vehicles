@@ -60,7 +60,10 @@ Game.prototype.insertEvent = function(index, tick, event) {
 	let toPlace = event;
 	for (let i = index; toPlace!==undefined; i++) {
 		if (this.events[i] && this.events[i].tag == event.tag) {
+			let unrealEvent = this.events[i];
 			this.events[i] = event;
+			if (event.tick != unrealEvent.tick)
+				this.regenerate();
 			break;
 		}
 		if (this.events[i] && this.events[i].index == i)
@@ -72,15 +75,20 @@ Game.prototype.insertEvent = function(index, tick, event) {
 	//events.splice(index, 0, event);
 	// Si l'évent est censé être passé, on regénère le monde
 	if (tick < this.world.tick) {
-		var newWorld = new World(this.map, this.vehiclesPatterns);
-		for (let i = 0; i < this.world.tick; i++) {
-			newWorld.update(this.events);
-		}
-		let exWorld = this.world;
-		this.world = newWorld;
-		exWorld.destroy();
+		this.regenerate();
 	}
 	return event;
+}
+
+Game.prototype.regenerate = function() {
+	console.log("regen !");
+	var newWorld = new World(this.map, this.vehiclesPatterns);
+	for (let i = 0; i < this.world.tick; i++) {
+		newWorld.update(this.events);
+	}
+	let exWorld = this.world;
+	this.world = newWorld;
+	exWorld.destroy();
 }
 
 // ajoute l'évent d'activation d'un contrôle
