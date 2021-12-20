@@ -1,7 +1,9 @@
+ip=localhost
+
 all : run
 
-rebuild :
-	npm rebuild
+install :
+	npm install
 
 run :
-	node server.js
+	node server.js ${ip}
