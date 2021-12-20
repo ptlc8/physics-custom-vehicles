@@ -53,7 +53,7 @@ Game.prototype.pushEvent = function(event, unreal=false) {
 	return event;
 }
 
-// client seulement // insert un event à un tick donner et revient en arriere
+// client seulement // insert un event à un tick donné et revient en arrière
 Game.prototype.insertEvent = function(index, tick, event) {
 	event.tick = tick;
 	event.index = index;
