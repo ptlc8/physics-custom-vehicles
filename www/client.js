@@ -50,7 +50,7 @@ Server.prototype.send = function(command, args={}) {
 function init() {
 	engine.setCameraSize(10);
 	engine.setCameraPos(0, -1);
-	server = new Server("ws://"+location.host+":13028", {open:onServerOpen, message:onServerCommand, close:onServerClose, messageerror:onServerError}); // TODO
+	server = new Server("ws://"+location.host, {open:onServerOpen, message:onServerCommand, close:onServerClose, messageerror:onServerError}); // TODO
 }
 
 function onServerOpen(server) {
@@ -143,7 +143,7 @@ function render(wctx, rctx, rendererRatio) {
 			engine.setCameraPos(toFollow?toFollow.get_x():0, toFollow?toFollow.get_y():0);
 		}
 		// Affichage des arrivées
-		for (let spawn of game.map.spawns) {
+		for (let finish of game.map.finishes) {
 			wctx.drawImage(getImage("finish"), spawn[0]-1, spawn[1]-2, 2, 4);
 		}
 		for (const [index,vehicle] of Object.entries(game.world.vehicles)) {

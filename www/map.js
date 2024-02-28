@@ -1,8 +1,9 @@
 //
-// groundVertices et spawns de la forme [[x,y],[x,y]]
-function Map(groundVertices=[], spawns=[]) {
+// groundVertices, spawns et finishes de la forme [[x,y],[x,y]]
+function Map(groundVertices=[], spawns=[], finishes=[]) {
 	this.groundVertices = groundVertices;
 	this.spawns = spawns;
+	this.finishes = finishes;
 }
 
 // static // caster un objet en Map
@@ -25,7 +26,7 @@ Map.createSinusoidalGround = function(width=500, height=10, amplitude=10, rudene
 
 // static // créer un carte d'affrontement 1v1
 Map.createMatchMap = function() {
-	return new Map([[-30,0],[30,0]],[[-20,0],[20,0]]);
+	return new Map([[-30,0],[30,0]], [[-20,0],[20,0]], [[20,0],[-20,0]]);
 }
 
 if (typeof exports === 'object' && typeof module === 'object') {

@@ -1,11 +1,17 @@
 {
   "name": "pcv-server",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Physics custom vehicles multiplayer server",
   "dependencies": {
-    "bufferutil": "^4.0.3",
-    "node-static": "^0.7.11",
-    "utf-8-validate": "^5.0.4",
+    "compression": "^1.7.4",
+    "express": "^4.18.2",
+    "pm2": "^5.3.1",
     "ws": "^7.4.3"
+  },
+  "scripts": {
+    "here": "node server.js",
+    "start": "pm2 start ecosystem.config.js",
+    "stop": "pm2 stop ecosystem.config.js",
+    "restart": "pm2 restart ecosystem.config.js"
   }
 }

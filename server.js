@@ -1,21 +1,25 @@
+const Express = require('express');
+const WebSocket = require('ws');
+const Compression = require('compression');
+const PcvServer = require('./pcvServer');
 const Http = require('http');
-const Static = require('node-static');
-const WebSocket = require("ws");
-const PcvServer = require("./pcvServer");
 
 
-const ip = process.argv[2] || "localhost";
-const port = 80;
+const port = process.env.PORT || 13029;
 
-// Création du serveur HTTP relié au dossier www
-const file = new Static.Server('./www');
-const httpServer = Http.createServer((req, res) => {
-	console.info("[http] "+req.connection.remoteAddress+"\t"+req.url);
-	req.addListener('end', () => file.serve(req, res)).resume();
+// Création du serveur Express relié au dossier www
+const app = Express();
+app.use(Compression());
+app.get('/*', (req, res, next) => {
+	console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
+	res.sendFile(__dirname + '/www/' + req.params[0]);
 });
 
-// Création du serveur WS sur le port 13028
-var wss = new WebSocket.Server({server:httpServer, port:13028});
+// Création du serveur HTTP
+const server = Http.createServer(app);
+
+// Création du serveur WS
+var wss = new WebSocket.Server({ server });
 
 // Liste des websockets par identifiant
 var clients = {};
@@ -31,12 +35,12 @@ pcvs.broadcast = function(object) {
 	for (let client of Object.values(clients))
 		client.send(JSON.stringify(object));
 }
-console.info("[pcv] Version du jeu : "+pcvs.version);
+console.info(`[pcv] Version du jeu : ${pcvs.version}`);
 
 // Lorsque quelqu'un se connecte
 function onConnection(ws) {
 	var connectionId = kId++;
-	console.log('[wss] Nouvelle connexion ('+connectionId+')');
+	console.log(`[wss] Nouvelle connexion (${connectionId})`);
 	clients[connectionId] = ws;
 	pcvs.connect(connectionId);
 	ws.on('message', function(message) {
@@ -52,7 +56,7 @@ function onConnection(ws) {
 		}
 		for (let arg of pcvs.commands[args.command].args) {
 			if (args[arg] === undefined) {
-				ws.send('{"error":"Need more args","need":"'+arg+'"}');
+				ws.send(`{"error":"Need more args","need":"${arg}"}`);
 				return;
 			}
 		}
@@ -60,7 +64,7 @@ function onConnection(ws) {
 		if (response) ws.send(JSON.stringify(response));
 	});
 	ws.on('close', function() {
-		console.log('[wss] Déconnexion ('+connectionId+')');
+		console.log(`[wss] Déconnexion (${connectionId})`);
 		pcvs.disconnect(connectionId);
 		delete clients[connectionId];
 	});
@@ -68,4 +72,5 @@ function onConnection(ws) {
 wss.on('connection', onConnection);
 wss.on('listening', () => console.log('[wss] En écoute'));
 
-httpServer.listen(port, ip, () => console.log(`[http] Lancé sur http://${ip}:${port}`));
+
+server.listen(port, () => console.log(`[http] Lancé sur le port ${port}`));
