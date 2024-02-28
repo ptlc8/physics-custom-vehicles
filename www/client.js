@@ -50,7 +50,14 @@ Server.prototype.send = function(command, args={}) {
 function init() {
 	engine.setCameraSize(10);
 	engine.setCameraPos(0, -1);
-	server = new Server("ws://"+location.host, {open:onServerOpen, message:onServerCommand, close:onServerClose, messageerror:onServerError}); // TODO
+	var protocol = location.protocol == "https:" ? "wss:" : "ws:";
+	var path = location.pathname.substring(0, location.pathname.lastIndexOf("/") + 1)
+	server = new Server(protocol + "//" + location.host + path, {
+		open: onServerOpen,
+		message: onServerCommand,
+		close: onServerClose,
+		messageerror: onServerError
+	});
 }
 
 function onServerOpen(server) {
