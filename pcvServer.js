@@ -1,6 +1,6 @@
 const Game = require("./scripts/game");
 const Player = require("./scripts/player");
-const Map = require("./scripts/map");
+const WorldMap = require("./scripts/map");
 const Gamemodes = require("./scripts/gamemodes");
 
 function PcvServer() {
@@ -99,7 +99,7 @@ PcvServer.prototype.commands.getvehicles = {
 PcvServer.prototype.commands.startsolo = {
 	args:["vehiclePattern"],
 	execute: function(connectionId, args) {
-		let map = new Map(Map.createSinusoidalGround(), [[0,0]]);
+		let map = new WorldMap(WorldMap.createSinusoidalGround(), [[0,0]]);
 		let vehiclesPatterns = [args.vehiclePattern];
 		let opponents = [connectionId];
 		let gameId = this.idIncrementer++;
@@ -179,7 +179,7 @@ PcvServer.prototype.commands.startmatch = {
 		if (!isValidVehiclePattern(args.vehiclePattern))
 			return {error:"Invalid pattern"};
 		if (this.waitingPlayers.length >= gamemode.players-1) {
-			let map = Map.createMatchMap();
+			let map = WorldMap.createMatchMap();
 			let vehiclesPatterns = [];
 			let opponents = [];
 			let gameId = this.idIncrementer++;

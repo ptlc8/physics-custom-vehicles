@@ -95,7 +95,7 @@ commands.logged = function(args) { // self, selfId
 
 // Lorsqu'une instance de jeu démarre
 commands.start = function(args) { // map, vehiclesPatterns, opponents, gamemode
-	var map = Map.cast(args.map);
+	var map = WorldMap.cast(args.map);
 	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
 	engine.setCameraSize(20);
 	state = State.PLAY;
@@ -104,7 +104,7 @@ commands.start = function(args) { // map, vehiclesPatterns, opponents, gamemode
 
 // Lorsque l'on devient spectateur d'un jeu
 commands.spectate = function(args) { // map, vehiclesPatterns, opponents, events, tick
-	var map = Map.cast(args.map);
+	var map = WorldMap.cast(args.map);
 	game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
 	game.events = args.events;
 	game.world.tick = args.tick;
