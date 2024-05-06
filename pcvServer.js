@@ -1,7 +1,7 @@
-const Game = require("./www/game");
-const Player = require("./www/player");
-const Map = require("./www/map");
-const Gamemodes = require("./www/gamemodes");
+const Game = require("./scripts/game");
+const Player = require("./scripts/player");
+const Map = require("./scripts/map");
+const Gamemodes = require("./scripts/gamemodes");
 
 function PcvServer() {
 	// Prochain id à utiliser

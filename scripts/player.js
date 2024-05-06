@@ -1,6 +1,6 @@
 if (typeof exports === 'object' && typeof module === 'object') {
 	if (require) {
-		Items = require("./items");
+		Items = require("./physics/items");
 	}
 	module.exports = Player;
 }

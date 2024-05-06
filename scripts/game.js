@@ -1,6 +1,6 @@
 if (typeof exports === 'object' && typeof module === 'object') {
 	if (require) {
-		World = require("./world");
+		World = require("./physics/world");
 	}
 	module.exports = Game;
 }

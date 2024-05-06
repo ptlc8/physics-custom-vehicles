@@ -7,12 +7,18 @@ const Http = require('http');
 
 const port = process.env.PORT || 13029;
 
-// Création du serveur Express relié au dossier www
+// Création du serveur Express
 const app = Express();
 app.use(Compression());
+
+// Distribution des scripts et des fichiers statiques
+app.get('/scripts/*', (req, res, next) => {
+	console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
+	res.sendFile(__dirname + '/scripts/' + req.params[0], err => err && next());
+});
 app.get('/*', (req, res, next) => {
 	console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
-	res.sendFile(__dirname + '/www/' + req.params[0]);
+	res.sendFile(__dirname + '/static/' + req.params[0], err => err && next());
 });
 
 // Création du serveur HTTP
