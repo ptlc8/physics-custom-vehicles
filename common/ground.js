@@ -10,10 +10,10 @@ function Ground() {
 
 // static // caster un objet en Ground
 Ground.cast = function(obj) {
-    let ground = new Ground();
+	let ground = new Ground();
 	if (obj.xs) ground.xs = obj.xs;
 	if (obj.ys) ground.ys = obj.ys;
-    return ground;
+	return ground;
 };
 
 

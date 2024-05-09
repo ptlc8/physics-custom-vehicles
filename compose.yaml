@@ -4,7 +4,7 @@ services:
     environment:
       VITE_BASE_URL: /pcv
     ports:
-      - 13029:13029
+      - 13029
     restart: always
     labels:
       - webproxy.path=pcv

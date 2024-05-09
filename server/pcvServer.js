@@ -99,6 +99,8 @@ PcvServer.prototype.commands.getvehicles = {
 PcvServer.prototype.commands.startsolo = {
 	args:["vehiclePattern"],
 	execute: function(connectionId, args) {
+		if (!isValidVehiclePattern(args.vehiclePattern))
+			return {error:"Invalid pattern"};
 		let map = new WorldMap(WorldMap.createSinusoidalGround(), [[0,0]]);
 		let vehiclesPatterns = [args.vehiclePattern];
 		let opponents = [connectionId];
@@ -231,7 +233,7 @@ function isValidVehiclePattern(pattern, width=7, height=5) {
 			if (part == undefined) continue;
 			if (typeof part !== "object")
 				return false;
-			if (part.id=="player"||(part.contained&&part.contained.id=="player"))
+			if (part.id=="player" || (part.param && part.param.id == "player"))
 				havePlayer = true;
 		}
 	}

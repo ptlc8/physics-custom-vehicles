@@ -75,7 +75,7 @@ Game.prototype.insertEvent = function(index, tick, event) {
 }
 
 Game.prototype.regenerate = function() {
-	console.log("regen !");
+	console.log("[pcv] A regenaration has occurred");
 	var newWorld = new World(this.map, this.vehiclesPatterns);
 	for (let i = 0; i < this.world.tick; i++) {
 		newWorld.update(this.events);
