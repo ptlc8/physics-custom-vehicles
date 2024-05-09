@@ -1,6 +1,6 @@
 if (typeof exports === 'object' && typeof module === 'object') {
 	if (require) {
-		Items = require("./physics/items");
+		VehiclePart = require("./physics/part");
 	}
 	module.exports = Player;
 }
@@ -15,8 +15,8 @@ function Player(name) {
 	// identifiant de la game dans laquelle il est
 	this.game = undefined;
 	// Don de tous les items à la création du joueur
-	for (let item of Items) {
-		this.inventory[item.id] = {amount:20};
+	for (let part of VehiclePart.all) {
+		this.inventory[part.id] = {amount:20};
 	}
 }
 
