@@ -1,0 +1,6 @@
+services:
+  server:
+    build: .
+    ports:
+      - 13029:13029
+    restart: always
