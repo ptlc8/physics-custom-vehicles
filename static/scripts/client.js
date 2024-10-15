@@ -22,7 +22,7 @@ var spectatedPlayerId = undefined;
 
 function Server(url, events={}) {
 	this.ws = new WebSocket(url);
-	this.ws.onopen = (e) => {
+	this.ws.onopen = () => {
 		if (events.open)
 			events.open(this);
 	};
@@ -33,7 +33,7 @@ function Server(url, events={}) {
 		if (!args.command && args.error && events.messageerror)
 			events.messageerror(this, args.error, args);
 	};
-	this.ws.onclose = (e) => {
+	this.ws.onclose = () => {
 		if (events.close)
 			events.close(this);
 	};
@@ -345,7 +345,7 @@ function onMouseUp(e) {
 function onMouseMove(e) {
 	mousePos = {sx:e.sx, sy:e.sy, rx:e.rx, ry:e.ry, wx:e.wx, wy:e.wy};
 }
-function onKeyUp(e) {
+function onKeyUp() {
 	
 }
 function onKeyDown(e) {
