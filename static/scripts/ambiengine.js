@@ -2,7 +2,7 @@
  * @version: v0.2
  * @author: Ambi
  */
-AmbiEngine = function() {
+const AmbiEngine = function() {
     var log = function(message) {
         console.log("[AmbiEngine] "+message);
     }
@@ -368,3 +368,5 @@ AmbiEngine = function() {
         getImage: getImage
     };
 }();
+
+export default AmbiEngine;

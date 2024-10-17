@@ -32,3 +32,5 @@ WorldMap.createMatchMap = function() {
 if (typeof exports === 'object' && typeof module === 'object') {
 	module.exports = WorldMap;
 }
+
+export default WorldMap;

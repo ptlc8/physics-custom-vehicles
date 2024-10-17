@@ -1,7 +1,7 @@
-const Game = require("./scripts/game");
-const Player = require("./scripts/player");
-const WorldMap = require("./scripts/map");
-const Gamemodes = require("./scripts/gamemodes");
+import Game from "./scripts/game.js";
+import Player from "./scripts/player.js";
+import WorldMap from "./scripts/map.js";
+import Gamemodes from "./scripts/gamemodes.js";
 
 function PcvServer() {
 	// Prochain id à utiliser
@@ -238,4 +238,4 @@ function isValidVehiclePattern(pattern, width=7, height=5) {
 	return havePlayer;
 }
 
-module.exports = PcvServer; 
+export default PcvServer; 

@@ -12,13 +12,17 @@ var selfPlayer = undefined;
 var game = undefined;
 var spectatedPlayerId = undefined;
 
+import Box2D from "box2d.js";
+import AmbiEngine from "./ambiengine.js";
+import Player from "../../scripts/player.js";
+import Game from "../../scripts/game.js";
+import Items from "../../scripts/physics/items.js";
+import WorldMap from "../../scripts/map.js";
+import Gamemodes from "../../scripts/gamemodes.js";
 
-//Box2D().then(function(b2) {
-	Box2D = Box2D();//b2;
-	engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, render, 30, {keyup:onKeyUp, keydown:onKeyDown, mousedown:onMouseDown, mouseup:onMouseUp, mousemove:onMouseMove, touchstart:onMouseDown, touchend:onMouseUp, touchmove:onMouseMove});
-	init();
-	engine.run()
-//});
+engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, render, 30, {keyup:onKeyUp, keydown:onKeyDown, mousedown:onMouseDown, mouseup:onMouseUp, mousemove:onMouseMove, touchstart:onMouseDown, touchend:onMouseUp, touchmove:onMouseMove});
+init();
+engine.run()
 
 function Server(url, events={}) {
 	this.ws = new WebSocket(url);

@@ -16,6 +16,5 @@ Ground.cast = function(obj) {
     return ground;
 }
 
-if (typeof exports === 'object' && typeof module === 'object') {
-	module.exports = Ground;
-}
+
+module.exports = Ground;

@@ -22,3 +22,5 @@ Gamemodes.getByName = function(name) {
 if (typeof exports === 'object' && typeof module === 'object') {
 	module.exports = Gamemodes;
 }
+
+export default Gamemodes;

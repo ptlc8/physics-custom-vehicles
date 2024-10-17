@@ -26,3 +26,6 @@ Items.getItem = function(id) {
 if (typeof exports === 'object' && typeof module === 'object') {
 	module.exports = Items;
 }
+
+
+export default Items;

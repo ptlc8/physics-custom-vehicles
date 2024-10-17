@@ -1,17 +1,6 @@
-if (typeof exports === 'object' && typeof module === 'object') {
-	if (require) {
-		/*Box2D = require("./Box2D_v2.3.1_min.js")().then(function(b2d) {
-			Box2D = b2d;
-			console.log("[pcv] Box2D chargée");
-		});*/
-		Box2D = require("./Box2D_v2.3.1_min_46394a63");
-		Items = require("./items");
-	}
-	module.exports = World;
-}
+import Box2D from "box2d.js";
+import Items from "./items.js";
 
-if (Box2D == undefined)
-	throw "Need Box2D var to be declared";
 
 function World(map, vehiclesPatterns=[]) {
 	// Vecteur gravité (y est orienté vers le bas)
@@ -371,3 +360,6 @@ function createPolygonShape(vertices) {
     shape.Set(ptr_wrapped, vertices.length);
     return shape;
 }
+
+
+export default World;

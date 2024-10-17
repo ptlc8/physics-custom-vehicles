@@ -1,25 +1,35 @@
-const Express = require('express');
-const WebSocket = require('ws');
-const Compression = require('compression');
-const PcvServer = require('./pcvServer');
-const Http = require('http');
+import Express from 'express';
+import WebSocket from 'ws';
+import Compression from 'compression';
+import PcvServer from './pcvServer.js';
+import Http from 'http';
+import { createServer as createViteServer } from 'vite';
 
 
 const port = process.env.PORT || 13029;
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Création du serveur Express
 const app = Express();
 app.use(Compression());
 
-// Distribution des scripts et des fichiers statiques
-app.get('/scripts/*', (req, res, next) => {
-	console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
-	res.sendFile(__dirname + '/scripts/' + req.params[0], err => err && next());
-});
-app.get('/*', (req, res, next) => {
-	console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
-	res.sendFile(__dirname + '/static/' + req.params[0], err => err && next());
-});
+if (isProduction) { // TODO
+	app.use(Express.static('dist'));
+	// Distribution des scripts et des fichiers statiques
+	/*app.get('/scripts/*', (req, res, next) => {
+		console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
+		res.sendFile(__dirname + '/scripts/' + req.params[0], err => err && next());
+	});
+	app.get('/*', (req, res, next) => {
+		console.info(`[http] ${req.socket.remoteAddress}\t${req.url}`);
+		res.sendFile(__dirname + '/static/' + req.params[0], err => err && next());
+	});*/
+} else {
+	const vite = createViteServer({
+		server: { middlewareMode: true }
+	});
+	app.use(vite.middlewares);
+}
 
 // Création du serveur HTTP
 const server = Http.createServer(app);
@@ -32,7 +42,7 @@ var clients = {};
 var kId = 0;
 
 // Création du serveur pcv
-pcvs = new PcvServer();
+const pcvs = new PcvServer();
 pcvs.send = function(connectionId, object) {
 	if (clients[connectionId])
 		clients[connectionId].send(JSON.stringify(object));
