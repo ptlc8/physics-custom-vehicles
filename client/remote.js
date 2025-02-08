@@ -1,13 +1,18 @@
-import WorldMap from "../common/map"; 
+import WorldMap from "../common/map";
+import Player from "../common/player";
+import Game from "../common/game";
+import Gamemodes from "../common/gamemodes";
 
 
-//const State = Object.assign({}, ...Object.entries(["BUILD", "WAIT", "PLAY", "SPECTATE"]).map(([i, s]) => ({ [s]: i })));
+const State = Object.assign({}, ...Object.entries(["BUILD", "WAIT", "PLAY", "SPECTATE"]).map(([i, s]) => ({ [s]: i })));
 
 class Remote {
 
     constructor(url) {
         this.selfPlayer = undefined;
         this.state = State.BUILD;
+        this.game = undefined;
+        this.spectatedPlayerId = undefined;
         this.nextTagId = 0;
         this.listeners = { open: [], close: [], message: [], messageerror: [] };
         this.ws = new WebSocket(url);
@@ -53,28 +58,28 @@ class Remote {
             this.selfPlayer.id = args.selfId;
         } else if (command == "start") { // map, vehiclesPatterns, opponents, gamemode
             // Lorsqu'une instance de jeu démarre
-            var map = WorldMap.cast(args.map);
-            game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
+            let map = WorldMap.cast(args.map);
+            this.game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
             engine.setCameraSize(20);
-            state = State.PLAY;
-            game.start();
+            this.state = State.PLAY;
+            this.game.start();
         } else if (command == "spectate") { // map, vehiclesPatterns, opponents, events, tick
             // Lorsque l'on devient spectateur d'un jeu
-            var map = WorldMap.cast(args.map);
-            game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
-            game.events = args.events;
-            game.world.tick = args.tick;
+            let map = WorldMap.cast(args.map);
+            this.game = new Game(map, Gamemodes.getByName(args.gamemode), args.vehiclesPatterns, args.opponents);
+            this.game.events = args.events;
+            this.game.world.tick = args.tick;
             engine.setCameraSize(20);
-            state = State.SPECTATE;
-            game.start();
-            game.regenerate();
+            this.state = State.SPECTATE;
+            this.game.start();
+            this.game.regenerate();
         } else if (command == "gameevent") { // event
             // Lorqu'un évent se produit lors d'un match, ex : activate, disactivate
             this.game.insertEvent(args.event.index, args.event.tick, args.event)
         } else if (command == "wait") {
             this.state = State.WAIT;
         } else if (command == "leavequeue") {
-            state = State.BUILD;
+            this.state = State.BUILD;
         } else {
             return console.error("[ws] Unknow command : " + command);
         }
@@ -89,9 +94,9 @@ class Remote {
             this.listeners.close(this);
     }
 
-    onError(event) {
+    onError(error, ...args) {
         console.group("[ws] Erreur : " + error);
-        console.warn(args);
+        console.warn(args); // Check that
         console.groupEnd();
     }
 
@@ -101,7 +106,7 @@ class Remote {
     }
 
     createTag() {
-        return selfPlayer.id + "#" + (this.nextTagId++);
+        return this.selfPlayer.id + "#" + (this.nextTagId++);
     }
 
     startSolo(vehiclePattern) {
@@ -119,20 +124,35 @@ class Remote {
     activate(index) {
         let tag = this.createTag();
         this.send("activate", { index: index, tag: tag });
-        game.activate(selfPlayer.id, index, tag, true);
+        this.game.activate(this.selfPlayer.id, index, tag, true);
     }
 
     disactivate(index) {
         let tag = this.createTag();
         this.send("disactivate", { index: index, tag: tag });
-        game.disactivate(selfPlayer.id, index, tag, true);
+        this.game.disactivate(this.selfPlayer.id, index, tag, true);
     }
 
     spectate(playerId) {
         this.send("spectate", { playerId: playerId });
-        spectatedPlayerId = playerId;
+        this.spectatedPlayerId = playerId;
+    }
+
+    spectateNext() {
+        if (this.spectatedPlayerId == this.game.opponents[this.game.opponents.length - 1])
+            this.spectatedPlayerId = this.game.opponents[0];
+        else
+            this.spectatedPlayerId = this.game.opponents[this.game.opponents.indexOf(this.spectatedPlayerId) + 1];
+    }
+
+    spectatePrevious() {
+        if (this.spectatedPlayerId == this.game.opponents[0])
+            this.spectatedPlayerId = this.game.opponents[this.game.opponents.length - 1];
+        else
+            this.spectatedPlayerId = this.game.opponents[this.game.opponents.indexOf(this.spectatedPlayerId) - 1];
     }
 }
 
 
 export default Remote;
+export { State };

@@ -1,8 +1,12 @@
-class Renderer { // TODO: unused for now
+import { State } from "./remote.js";
+import AmbiEngine from "./ambiengine.js";
 
-    constructor(canvas, game) {
-        this.canvas = canvas;
-        this.game = game;
+
+class Renderer {
+
+    constructor(engine, remote) {
+        this.engine = engine;
+        this.remote = remote;
     }
 
     /**
@@ -19,15 +23,15 @@ class Renderer { // TODO: unused for now
         wctx.drawRectInfiniteX("#b4d5f4", -56, 2048);
         wctx.setZ(0);
         // Affichage du sol
-        if (this.game && this.game.map)
+        if (this.remote.game && this.remote.game.map)
             this.renderMap(wctx);
-        if ((state == State.PLAY || state == State.SPECTATE) && this.game!==undefined)
+        if ((this.remote.state == State.PLAY || this.remote.state == State.SPECTATE) && this.remote.game!==undefined)
             this.renderInGame(wctx, rctx, rendererRatio);
-        if (state == State.BUILD || state == State.WAIT)
+        if (this.remote.state == State.BUILD || this.remote.state == State.WAIT)
             this.renderVehicleEditor(wctx, rctx, rendererRatio);
-        if (state == State.BUILD)
+        if (this.remote.state == State.BUILD)
             this.renderVehicleBuilder(wctx, rctx, rendererRatio);
-        if (state == State.WAIT)
+        if (this.remote.state == State.WAIT)
             this.renderWait(rctx, rendererRatio);
     }
 
@@ -36,7 +40,7 @@ class Renderer { // TODO: unused for now
      * @param {WorldContext} wctx
     */
     renderMap(wctx) {
-        wctx.drawLines("green", this.game.map.groundVertices.map(e=>e[0]), this.game.map.groundVertices.map(e=>e[1]), .1);
+        wctx.drawLines("green", this.remote.game.map.groundVertices.map(e=>e[0]), this.remote.game.map.groundVertices.map(e=>e[1]), .1);
     }
 
     /**
@@ -47,17 +51,17 @@ class Renderer { // TODO: unused for now
      */
     renderInGame(wctx, rctx, rendererRatio) {
         // Centrage de la caméra sur le véhicule du joueur
-        let playerIdToFollow = state==State.PLAY ? selfPlayer.id : state==State.SPECTATE ? spectatedPlayerId : undefined;
-        let opponentIndexToFollow = this.game.getPlayerIndex(playerIdToFollow);
-        if (this.game.world.vehicles[opponentIndexToFollow] !== undefined) {
-            let toFollow = this.game.world.vehicles[opponentIndexToFollow].pos;
-            engine.setCameraPos(toFollow?toFollow.get_x():0, toFollow?toFollow.get_y():0);
+        let playerIdToFollow = this.remote.state==State.PLAY ? selfPlayer.id : this.remote.state==State.SPECTATE ? spectatedPlayerId : undefined;
+        let opponentIndexToFollow = this.remote.game.getPlayerIndex(playerIdToFollow);
+        if (this.remote.game.world.vehicles[opponentIndexToFollow] !== undefined) {
+            let toFollow = this.remote.game.world.vehicles[opponentIndexToFollow].pos;
+            this.engine.setCameraPos(toFollow?toFollow.get_x():0, toFollow?toFollow.get_y():0);
         }
         // Affichage des arrivées
-        for (let finish of this.game.map.finishes) {
+        for (let finish of this.remote.game.map.finishes) {
             wctx.drawImage(getImage("finish"), spawn[0]-1, spawn[1]-2, 2, 4);
         }
-        for (const [index,vehicle] of Object.entries(this.game.world.vehicles)) {
+        for (const [index,vehicle] of Object.entries(this.remote.game.world.vehicles)) {
             // Véhicules
             for (let line of vehicle.parts) for (let part of line) {
                 if (part == undefined) continue;
@@ -65,7 +69,7 @@ class Renderer { // TODO: unused for now
                 if (part.contained)
                     wctx.drawImage(getImage(part.contained.id), part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), .9, .9, part.body.GetAngle());
                 if (part.id == "player" || (part.contained && part.contained.id == "player"))
-                    wctx.drawText("Joueur "+this.game.opponents[index], part.body.GetPosition().get_x(), part.body.GetPosition().get_y()-1, .5, "white", 0, "black", "center");
+                    wctx.drawText("Joueur "+this.remote.game.opponents[index], part.body.GetPosition().get_x(), part.body.GetPosition().get_y()-1, .5, "white", 0, "black", "center");
             }
             if (index==opponentIndexToFollow) {
                 // Affichage des contrôles du véhicule du joueur
@@ -85,8 +89,9 @@ class Renderer { // TODO: unused for now
      * @param {WorldContext} wctx
      * @param {RenderContext} rctx
      * @param {number} rendererRatio
+     * @param {Array<Array<VehiclePart>>} vehiclePattern
      */
-    renderVehicleEditor(wctx, rctx, rendererRatio) {
+    renderVehicleEditor(wctx, rctx, rendererRatio, vehiclePattern) {
         for (let i = 0; i < vehiclePattern.length; i++)
             for (let j = 0; j < vehiclePattern[i].length; j++) {
                 wctx.drawRect("#D0D0D0", j*1.2-(.6*vehiclePattern[i].length)+.6, (i-vehiclePattern.length+1)*1.2-.6, 1, 1);
@@ -147,3 +152,11 @@ class Renderer { // TODO: unused for now
     }
 
 }
+
+
+function getImage(name) {
+	return AmbiEngine.getImage("assets/" + name + ".png");
+}
+
+
+export default Renderer;
