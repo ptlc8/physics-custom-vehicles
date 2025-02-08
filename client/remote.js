@@ -3,7 +3,7 @@ import WorldMap from "../common/map";
 
 //const State = Object.assign({}, ...Object.entries(["BUILD", "WAIT", "PLAY", "SPECTATE"]).map(([i, s]) => ({ [s]: i })));
 
-class Remote { // TODO: unused for now
+class Remote {
 
     constructor(url) {
         this.selfPlayer = undefined;
@@ -117,13 +117,13 @@ class Remote { // TODO: unused for now
     }
 
     activate(index) {
-        let tag = createTag();
+        let tag = this.createTag();
         this.send("activate", { index: index, tag: tag });
         game.activate(selfPlayer.id, index, tag, true);
     }
 
     disactivate(index) {
-        let tag = createTag();
+        let tag = this.createTag();
         this.send("disactivate", { index: index, tag: tag });
         game.disactivate(selfPlayer.id, index, tag, true);
     }
@@ -133,3 +133,6 @@ class Remote { // TODO: unused for now
         spectatedPlayerId = playerId;
     }
 }
+
+
+export default Remote;
