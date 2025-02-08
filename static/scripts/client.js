@@ -1,5 +1,6 @@
 const ControlKeys = [{ code: "KeyE", display: "E" }, { code: "KeyR", display: "R" }, { code: "KeyT", display: "T" }, { code: "KeyY", display: "Y" }, { code: "KeyU", display: "U" }, { code: "KeyI", display: "I" }, { code: "KeyS", display: "S" }, { code: "KeyD", display: "D" }, { code: "KeyF", display: "F" }, { code: "KeyG", display: "G" }, { code: "KeyH", display: "H" }, { code: "KeyJ", display: "J" }, { code: "KeyK", display: "K" }, { code: "KeyL", display: "L" }];
 var engine;
+var renderer;
 var remote;
 var world;
 var mousePos = {sx:0, sy:0, rx:0, ry:0, wx:0, wy:0};
@@ -12,7 +13,8 @@ var spectatedPlayerId = undefined;
 
 //Box2D().then(function(b2) {
 Box2D = Box2D();//b2;
-engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, render, 30, { keyup: onKeyUp, keydown: onKeyDown, mousedown: onMouseDown, mouseup: onMouseUp, mousemove: onMouseMove, touchstart: onMouseDown, touchend: onMouseUp, touchmove: onMouseMove });
+renderer = new Renderer(remote);
+engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, renderer.render, 30, { keyup: onKeyUp, keydown: onKeyDown, mousedown: onMouseDown, mouseup: onMouseUp, mousemove: onMouseMove, touchstart: onMouseDown, touchend: onMouseUp, touchmove: onMouseMove });
 init();
 engine.run()
 //});
@@ -28,6 +30,10 @@ function init() {
 
 
 function update() {
+
+}
+
+function render() {
 
 }
 
