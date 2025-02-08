@@ -114,13 +114,13 @@ class Remote {
     }
 
     activate(index) {
-        let tag = createTag();
+        let tag = this.createTag();
         this.send("activate", { index: index, tag: tag });
         game.activate(selfPlayer.id, index, tag, true);
     }
 
     disactivate(index) {
-        let tag = createTag();
+        let tag = this.createTag();
         this.send("disactivate", { index: index, tag: tag });
         game.disactivate(selfPlayer.id, index, tag, true);
     }
