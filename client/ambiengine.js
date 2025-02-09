@@ -348,7 +348,6 @@ const AmbiEngine = function() {
 	}
     var images = {no: newImage("assets/no.png"), loading: newImage("assets/loading.png")};
 	var getImage = function(src, ignoreLoading=false) {
-		src = src;
 		if (images[src]) return images[src].complete || ignoreLoading ? images[src] : images.loading;
 		//info("Loading Image : " + src);
 		var img = new Image();

@@ -16,6 +16,12 @@
     "start:dev": "NODE_ENV=development node server",
     "pm2:start": "pm2 start ecosystem.config.js",
     "pm2:stop": "pm2 stop ecosystem.config.js",
-    "pm2:restart": "pm2 restart ecosystem.config.js"
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.12.0",
+    "eslint": "^9.12.0",
+    "globals": "^15.11.0"
   }
 }
