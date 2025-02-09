@@ -1,9 +1,5 @@
-if (typeof exports === 'object' && typeof module === 'object') {
-	if (require) {
-		Items = require("./physics/items");
-	}
-	module.exports = Player;
-}
+import Items from "./physics/items.js";
+
 
 function Player(name) {
 	// Nom du joueur
@@ -41,3 +37,5 @@ Player.cast = function(obj) {
 	if (obj.game) player.game = obj.game;
     return player;
 }
+
+export default Player;

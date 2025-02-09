@@ -2,17 +2,15 @@ FROM node:lts-slim
 
 WORKDIR /app
 
-# Copy the code
-COPY package*.json ./
-COPY *.js ./
-COPY scripts ./scripts
-COPY static ./static
-
 # Install dependencies
+COPY package*.json ./
 RUN npm ci
 
-# Expose the port
-EXPOSE 13029
+# Copy the code
+COPY common ./common
+COPY server ./server
+COPY client ./client
+COPY *.js ./
 
 # Start the server
-CMD ["node", "server.js"]
+CMD ["node", "server"]

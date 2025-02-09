@@ -17,8 +17,6 @@ const Gamemodes = {
 
 Gamemodes.getByName = function(name) {
 	return Gamemodes[name];
-}
+};
 
-if (typeof exports === 'object' && typeof module === 'object') {
-	module.exports = Gamemodes;
-}
+export default Gamemodes;

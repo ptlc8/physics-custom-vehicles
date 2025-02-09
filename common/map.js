@@ -29,6 +29,4 @@ WorldMap.createMatchMap = function() {
 	return new WorldMap([[-30,0],[30,0]], [[-20,0],[20,0]], [[20,0],[-20,0]]);
 }
 
-if (typeof exports === 'object' && typeof module === 'object') {
-	module.exports = WorldMap;
-}
+export default WorldMap;

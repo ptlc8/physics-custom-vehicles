@@ -1,17 +1,6 @@
-if (typeof exports === 'object' && typeof module === 'object') {
-	if (require) {
-		/*Box2D = require("./Box2D_v2.3.1_min.js")().then(function(b2d) {
-			Box2D = b2d;
-			console.log("[pcv] Box2D chargée");
-		});*/
-		Box2D = require("./Box2D_v2.3.1_min_46394a63");
-		Items = require("./items");
-	}
-	module.exports = World;
-}
+import Box2D from "box2d.js";
+import Items from "./items.js";
 
-if (Box2D == undefined)
-	throw "Need Box2D var to be declared";
 
 function World(map, vehiclesPatterns=[]) {
 	// Vecteur gravité (y est orienté vers le bas)
@@ -115,7 +104,7 @@ function Vehicle(world, reducedPattern, x=0, y=0) {
 	x -= reducedPattern[0].length/2;
 	y -= reducedPattern.length;
 	// Assemblage du pattern avec toutes les infos
-	pattern = [];
+	let pattern = [];
 	for (let l of reducedPattern) {
 		let line = [];
 		for (let p of l) {
@@ -255,7 +244,7 @@ World.prototype.explode = function(center, blastRadius, blastPower, numRays=32) 
 		let angle = (i/numRays) * 2*Math.PI;
 		let rayEnd = new Box2D.b2Vec2(center.get_x()+blastRadius*Math.sin(angle), center.get_y()+blastRadius*Math.cos(angle));
 		//check what this ray hits
-		/*let */myQueryCallback = new Box2D.JSRayCastCallback();
+		let myQueryCallback = new Box2D.JSRayCastCallback();
 		myQueryCallback.ReportFixture = function(fixturePtr, point, normal, fraction) { // fixture, point, normal, fraction
 			var fixture = Box2D.wrapPointer( fixturePtr, Box2D.b2Fixture );
 			if (fixture.GetBody().GetType() == Box2D.b2_dynamicBody)
@@ -371,3 +360,6 @@ function createPolygonShape(vertices) {
     shape.Set(ptr_wrapped, vertices.length);
     return shape;
 }
+
+
+export default World;

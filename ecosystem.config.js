@@ -1,7 +1,7 @@
 module.exports = {
     apps: [{
         name: "physics-custom-vehicles",
-        script: "server.js",
+        script: "server",
         instances: 1
     }]
 };

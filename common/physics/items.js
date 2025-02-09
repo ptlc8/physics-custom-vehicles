@@ -20,9 +20,6 @@ Items.getItem = function(id) {
 	for (let item of Items)
 		if (item.id == id)
 			return item;
-}
+};
 
-
-if (typeof exports === 'object' && typeof module === 'object') {
-	module.exports = Items;
-}
+export default Items;

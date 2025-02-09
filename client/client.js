@@ -12,13 +12,17 @@ var selfPlayer = undefined;
 var game = undefined;
 var spectatedPlayerId = undefined;
 
+import Box2D from "box2d.js";
+import AmbiEngine from "./ambiengine.js";
+import Player from "../common/player.js";
+import Game from "../common/game.js";
+import Items from "../common/physics/items.js";
+import WorldMap from "../common/map.js";
+import Gamemodes from "../common/gamemodes.js";
 
-//Box2D().then(function(b2) {
-	Box2D = Box2D();//b2;
-	engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, render, 30, {keyup:onKeyUp, keydown:onKeyDown, mousedown:onMouseDown, mouseup:onMouseUp, mousemove:onMouseMove, touchstart:onMouseDown, touchend:onMouseUp, touchmove:onMouseMove});
-	init();
-	engine.run()
-//});
+engine = AmbiEngine.create(document.getElementById("aff"), 1920, 1080, init, update, render, 30, {keyup:onKeyUp, keydown:onKeyDown, mousedown:onMouseDown, mouseup:onMouseUp, mousemove:onMouseMove, touchstart:onMouseDown, touchend:onMouseUp, touchmove:onMouseMove});
+init();
+engine.run()
 
 function Server(url, events={}) {
 	this.ws = new WebSocket(url);
@@ -151,7 +155,7 @@ function render(wctx, rctx, rendererRatio) {
 		}
 		// Affichage des arrivées
 		for (let finish of game.map.finishes) {
-			wctx.drawImage(getImage("finish"), spawn[0]-1, spawn[1]-2, 2, 4);
+			wctx.drawImage(getImage("finish"), finish[0]-1, finish[1]-2, 2, 4);
 		}
 		for (const [index,vehicle] of Object.entries(game.world.vehicles)) {
 			// Véhicules
@@ -220,8 +224,9 @@ function render(wctx, rctx, rendererRatio) {
 	// En attente d'un match
 	if (state == State.WAIT) {
 		rctx.drawImage(getImage("quit"), 120, 0, 20, 20);
-		let loadDot = "   ";
+		let loadDot = Array(3).fill(" ");
 		loadDot[parseInt(Date.now()/1000)%3] = ".";
+		loadDot = loadDot.join("");
 		rctx.drawText("Recherche d'adversaires en cours"+loadDot, 0, 60, 20, "white", 0, "black", "center");
 	}
 }
@@ -327,7 +332,7 @@ function onMouseUp(e) {
 				if (vehiclePattern[vehicleIndex][vehicleJndex]!=undefined) {
 					selfPlayer.addToInventory(vehiclePattern[vehicleIndex][vehicleJndex].id);
 					if (vehiclePattern[vehicleIndex][vehicleJndex].contained!=undefined)
-						addToInventory(inventory, vehiclePattern[vehicleIndex][vehicleJndex].contained.id);
+						selfPlayer.addToInventory(vehiclePattern[vehicleIndex][vehicleJndex].contained.id);
 				}
 				vehiclePattern[vehicleIndex][vehicleJndex] = placingItem;
 				placingItem = undefined;

@@ -14,8 +14,7 @@ Ground.cast = function(obj) {
 	if (obj.xs) ground.xs = obj.xs;
 	if (obj.ys) ground.ys = obj.ys;
     return ground;
-}
+};
 
-if (typeof exports === 'object' && typeof module === 'object') {
-	module.exports = Ground;
-}
+
+export default Ground;

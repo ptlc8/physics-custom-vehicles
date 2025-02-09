@@ -1,6 +1,8 @@
 services:
   server:
     build: .
+    environment:
+      VITE_BASE_URL: /pcv
     ports:
       - 13029:13029
     restart: always

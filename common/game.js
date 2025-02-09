@@ -1,12 +1,6 @@
-if (typeof exports === 'object' && typeof module === 'object') {
-	if (require) {
-		World = require("./physics/world");
-	}
-	module.exports = Game;
-}
+import World from "./physics/world.js";
+export default Game;
 
-if (Box2D == undefined)
-	throw "Need Box2D var to be declared";
 
 function Game(map, gamemode, vehiclesPatterns=[], opponents=[]) {
 	// Carte [sol, spawns] de la partie
