@@ -8,6 +8,9 @@ const State = Object.assign({}, ...Object.entries(["BUILD", "WAIT", "PLAY", "SPE
 
 class Remote {
 
+    /**
+     * @param {string} url URL du websocket
+     */
     constructor(url) {
         this.selfPlayer = undefined;
         this.state = State.BUILD;
@@ -22,14 +25,27 @@ class Remote {
         this.ws.onerror = this.onError.bind(this);
     }
 
+    /**
+     * @param {string} event
+     * @param {function(Remote, ...):void} listener
+     */
     addEventListener(event, listener) {
         this.listeners[event].push(listener);
     }
 
+    /**
+     * @param {string} event
+     * @param {function(Remote, ...):void} listener
+     */
     removeEventListener(event, listener) {
         this.listeners[event].splice(this.listeners[event].indexOf(listener), 1);
     }
 
+    /**
+     * Quand la connexion est établie avec le serveur
+     * @private
+     * @param {Event} event Évent WebSocket
+     */
     onOpen(event) {
         console.log("[ws] Connecté");
         this.send("setname", { name: "myself" });
@@ -37,8 +53,13 @@ class Remote {
             this.listeners.open(this);
     };
 
+    /**
+     * Quand le serveur envoie un message
+     * @private
+     * @param {Event} event Évent WebSocket
+     */
     onMessage(event) {
-        let args = JSON.parse(event.data);
+        const args = JSON.parse(event.data);
         if (args.command) {
             if (this.listeners.message)
                 this.listeners.message(this, args.command, args);
@@ -48,6 +69,12 @@ class Remote {
         }
     }
 
+    /**
+     *
+     * @private ? TODO
+     * @param {string} command
+     * @param {Object} args
+     */
     onCommand(command, args) {
         console.group("[ws] Serveur : " + command);
         console.info(args);
@@ -88,56 +115,102 @@ class Remote {
                 listener(this, args);
     }
 
+    /**
+     * Quand la connexion avec le serveur est coupée
+     * @param {Event} event Évent WebSocket
+     */
     onClose(event) {
-        console.log("[ws] Déconnecté");
+        console.log("[ws] Déconnecté" + (event.reason ? " : " + event.reason : ""));
         if (this.listeners.close)
             this.listeners.close(this);
     }
 
+    /**
+     * Quand la connexion a une erreur
+     * @private
+     * @param {*} error // TODO
+     * @param  {...any} args
+     */
     onError(error, ...args) {
         console.group("[ws] Erreur : " + error);
-        console.warn(args); // Check that
+        console.warn(args); // TODO: Check that
         console.groupEnd();
     }
 
+    /**
+     * Envoie une commande au serveur
+     * @private
+     * @param {string} command
+     * @param {Object} args
+     */
     send(command, args = {}) {
         args.command = command;
         this.ws.send(JSON.stringify(args));
     }
 
+    /**
+     * Crée un nouvel id unique pour une interaction du joueur
+     * @returns {string}
+     */
     createTag() {
         return this.selfPlayer.id + "#" + (this.nextTagId++);
     }
 
+    /**
+     * Lance une partie en mode solo
+     * @param {Array<Array<Object>>} vehiclePattern 
+     */
     startSolo(vehiclePattern) {
         this.send("startsolo", { vehiclePattern });
     }
 
+    /**
+     * Démarre une recherche d'adversaire
+     * @param {Array<Array<Object>>} vehiclePattern 
+     */
     startMatch(vehiclePattern) {
         this.send("startmatch", { vehiclePattern });
     }
 
+    /**
+     * Arrête la recherche d'adversaire
+     */
     leaveQueue() {
         this.send("leavequeue");
     }
 
+    /**
+     * Active une pièce du véhicule
+     * @param {number} index Indice de la pièce
+     */
     activate(index) {
-        let tag = this.createTag();
-        this.send("activate", { index: index, tag: tag });
+        const tag = this.createTag();
+        this.send("activate", { index, tag });
         this.game.activate(this.selfPlayer.id, index, tag, true);
     }
 
+    /**
+     * Désactive une pièce du véhicule
+     * @param {number} index Indice de la pièce
+     */
     disactivate(index) {
-        let tag = this.createTag();
-        this.send("disactivate", { index: index, tag: tag });
+        const tag = this.createTag();
+        this.send("disactivate", { index, tag });
         this.game.disactivate(this.selfPlayer.id, index, tag, true);
     }
 
+    /**
+     * Regarde un autre joueur jouer
+     * @param {number} playerId Identifiant du joueur
+     */
     spectate(playerId) {
-        this.send("spectate", { playerId: playerId });
+        this.send("spectate", { playerId });
         this.spectatedPlayerId = playerId;
     }
 
+    /**
+     * Déplace la caméra sur l'adversaire suivant
+     */
     spectateNext() {
         if (this.spectatedPlayerId == this.game.opponents[this.game.opponents.length - 1])
             this.spectatedPlayerId = this.game.opponents[0];
@@ -145,6 +218,9 @@ class Remote {
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.indexOf(this.spectatedPlayerId) + 1];
     }
 
+    /**
+     * Déplace la caméra sur l'adversaire précédent
+     */
     spectatePrevious() {
         if (this.spectatedPlayerId == this.game.opponents[0])
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.length - 1];

@@ -1,9 +1,14 @@
 import { State } from "./remote.js";
 import AmbiEngine from "./ambiengine.js";
+import Remote from "./remote.js";
 
 
 class Renderer {
 
+    /**
+     * @param {*} engine
+     * @param {Remote} remote
+     */
     constructor(engine, remote) {
         this.engine = engine;
         this.remote = remote;
@@ -28,7 +33,7 @@ class Renderer {
         if ((this.remote.state == State.PLAY || this.remote.state == State.SPECTATE) && this.remote.game !== undefined)
             this.renderInGame(wctx, rctx, rendererRatio);
         if (this.remote.state == State.BUILD || this.remote.state == State.WAIT)
-            this.renderVehicleEditor(wctx, rctx, rendererRatio);
+            this.renderVehicleEditor(wctx, rctx, rendererRatio, vehiclePattern);
         if (this.remote.state == State.BUILD)
             this.renderVehicleBuilder(wctx, rctx, rendererRatio);
         if (this.remote.state == State.WAIT)
@@ -78,7 +83,7 @@ class Renderer {
                     rctx.drawRect("#C0C0C0", i * 40 - (20 * vehicle.controls.length) + 20, 80, 30, 30);
                     rctx.drawImage(getImage(vehicle.controls[i].id + vehicle.controls[i].color), i * 40 - (20 * vehicle.controls.length) + 20, 80, 20, 20, vehicle.controls[i].rotation * Math.PI / 2);
                     rctx.drawText(vehicle.controls[i].parts[0].activated ? "ON" : "OFF", i * 40 - (20 * vehicle.controls.length) + 8, 86, 12, "white", 0, "black");
-                    if (i < ControlKeys.length) rctx.drawText(ControlKeys[i].display, i * 40 - (20 * vehicle.controls.length) + 34, 70, 12, "white", 0, "black", "right");
+                    if (i < controlKeys.length) rctx.drawText(controlKeys[i].display, i * 40 - (20 * vehicle.controls.length) + 34, 70, 12, "white", 0, "black", "right");
                 }
             }
         }
@@ -153,7 +158,10 @@ class Renderer {
 
 }
 
-
+/**
+ * @param {string} name 
+ * @returns {HTMLImageElement} 
+ */
 function getImage(name) {
     return AmbiEngine.getImage("assets/" + name + ".png");
 }

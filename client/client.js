@@ -5,13 +5,14 @@ import Renderer from "./renderer.js";
 import VehiclePart from "../common/physics/part.js";
 
 
-const ControlKeys = [{ code: "KeyE", display: "E" }, { code: "KeyR", display: "R" }, { code: "KeyT", display: "T" }, { code: "KeyY", display: "Y" }, { code: "KeyU", display: "U" }, { code: "KeyI", display: "I" }, { code: "KeyS", display: "S" }, { code: "KeyD", display: "D" }, { code: "KeyF", display: "F" }, { code: "KeyG", display: "G" }, { code: "KeyH", display: "H" }, { code: "KeyJ", display: "J" }, { code: "KeyK", display: "K" }, { code: "KeyL", display: "L" }];
+const controlKeys = [{ code: "KeyE", display: "E" }, { code: "KeyR", display: "R" }, { code: "KeyT", display: "T" }, { code: "KeyY", display: "Y" }, { code: "KeyU", display: "U" }, { code: "KeyI", display: "I" }, { code: "KeyS", display: "S" }, { code: "KeyD", display: "D" }, { code: "KeyF", display: "F" }, { code: "KeyG", display: "G" }, { code: "KeyH", display: "H" }, { code: "KeyJ", display: "J" }, { code: "KeyK", display: "K" }, { code: "KeyL", display: "L" }];
 var engine;
 var renderer;
 var remote;
 var mousePos = {sx:0, sy:0, rx:0, ry:0, wx:0, wy:0};
 const u = undefined; // tmp :)
 var vehiclePattern = [[u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u]];
+/** @type {VehiclePart} */
 var placingItem = undefined;
 
 
@@ -165,8 +166,8 @@ function onKeyUp() {
 function onKeyDown(e) {
 	if (remote.state == State.PLAY && remote.game != undefined) {
 		let controlIndex = undefined;
-		for (let i = 0; i < ControlKeys.length; i++)
-			if (ControlKeys[i].code == e.code) controlIndex = i;
+		for (let i = 0; i < controlKeys.length; i++)
+			if (controlKeys[i].code == e.code) controlIndex = i;
 		if (controlIndex == undefined) return;
 		let playerIndex = remote.game.getPlayerIndex(remote.selfPlayer.id);
 		if (0 <= controlIndex && controlIndex < remote.game.world.vehicles[playerIndex].controls.length) {
@@ -187,6 +188,11 @@ function onKeyDown(e) {
 }
 
 
+/**
+ * Reduce a vehicle pattern to be serializable in JSON
+ * @param {Array<Array<VehiclePart>>} pattern 
+ * @returns {Array<Array<Object>>}
+ */
 function reducePattern(pattern) {
 	var reducedPattern = [];
 	for (let l of pattern) {
