@@ -118,8 +118,8 @@ VehiclePart.getClassById = function (id) {
 /**
  * Crée une partie de véhicule en prenant la classe correspondant à son identifiant
  * @param {string} id 
- * @param  {...any} parameters 
- * @returns 
+ * @param {...any} parameters 
+ * @returns {VehiclePart}
  */
 VehiclePart.createById = function (id, ...parameters) {
     let partClass = VehiclePart.getClassById(id);

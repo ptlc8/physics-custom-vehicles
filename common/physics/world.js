@@ -121,7 +121,6 @@ class World {
  * @param {Box2D.b2Vec2} blastCenter
  * @param {Box2D.b2Vec2} applyPoint
  * @param {number} blastPower
- * @returns 
  */
 function applyBlastImpulse(body, blastCenter, applyPoint = body.GetPosition(), blastPower = 1) {
 	var blastDir = new Box2D.b2Vec2(applyPoint.get_x() - blastCenter.get_x(), applyPoint.get_y() - blastCenter.get_y());

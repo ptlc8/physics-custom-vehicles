@@ -31,7 +31,7 @@ class Vehicle {
         }
         if (!this.pos)
             throw new Error("No player in the vehicle");
-        // Création des liens entre les parties du véhicule 
+        // Création des liens entre les parties du véhicule
         for (let i = 0; i < this.parts.length; i++) {
             for (let j = 0; j < this.parts[i].length; j++) {
                 if (!this.parts[i][j]) continue;
@@ -116,12 +116,12 @@ class Vehicle {
  * @param {Box2D.b2Vec2} originB
  * @param {number} angleOrLength
  * @param {boolean} motor
- * @returns 
+ * @returns {Box2D.b2RevoluteJoint|Box2D.b2RopeJoint|Box2D.b2WeldJoint}
  */
 function joinBodies(world, joinType, bodyA, bodyB, originB, angleOrLength = joinType == "rope" ? 2 : bodyB.GetAngle() - bodyA.GetAngle(), motor = false) {
     if (joinType == "revolute") return revoluteJoinBodies(world, bodyA, bodyB, originB, angleOrLength, motor);
     if (joinType == "rope") return ropeJoinBodies(world, bodyA, bodyB, originB, angleOrLength);
-    return defaultJoinBodies(world, bodyA, bodyB, originB, angleOrLength);
+    return weldJoinBodies(world, bodyA, bodyB, originB, angleOrLength);
 }
 
 /**
@@ -131,9 +131,9 @@ function joinBodies(world, joinType, bodyA, bodyB, originB, angleOrLength = join
  * @param {Box2D.b2Body} bodyB
  * @param {Box2D.b2Vec2} originB
  * @param {number} angle
- * @returns 
+ * @returns {Box2D.b2WeldJoint}
  */
-function defaultJoinBodies(world, bodyA, bodyB, originB, angle) {
+function weldJoinBodies(world, bodyA, bodyB, originB, angle) {
     var jd = new Box2D.b2WeldJointDef();
     jd.set_bodyA(bodyA);
     jd.set_bodyB(bodyB);
@@ -146,22 +146,16 @@ function defaultJoinBodies(world, bodyA, bodyB, originB, angle) {
     return Box2D.castObject(joint, Box2D.b2WeldJoint);
 }
 
-// unused // 
-function weldJoinBodies(world, bodyA, bodyB, aX, aY, bX, bY, collide = true) {
-    var jd = new Box2D.b2WeldJointDef();
-    jd.set_bodyA(bodyA);
-    jd.set_bodyB(bodyB);
-    jd.set_localAnchorA(new Box2D.b2Vec2(aX, aY));
-    jd.set_localAnchorB(new Box2D.b2Vec2(bX, bY));
-    if (collide) jd.set_collideConnected(true);
-    jd.set_dampingRatio(0.5);
-    jd.set_referenceAngle(0);
-    var joint = world.CreateJoint(jd);
-    Box2D.destroy(jd);
-    return Box2D.castObject(joint, Box2D.b2WeldJoint);
-}
-
-// Accroche 2 corps avec un axe de rotation
+/**
+ * Accroche 2 corps avec un axe de rotation
+ * @param {Box2D.b2World} world
+ * @param {Box2D.b2Body} bodyA
+ * @param {Box2D.b2Body} bodyB
+ * @param {Box2D.b2Vec2} originB
+ * @param {number} angle
+ * @param {boolean} motor
+ * @returns {Box2D.b2RevoluteJoint}
+ */
 function revoluteJoinBodies(world, bodyA, bodyB, originB, angle = 0, motor = false) {
     var jd = new Box2D.b2RevoluteJointDef();
     //jd.Initialize(bodyA, bodyB, bodyA.GetPosition());
@@ -181,7 +175,15 @@ function revoluteJoinBodies(world, bodyA, bodyB, originB, angle = 0, motor = fal
     return Box2D.castObject(joint, Box2D.b2RevoluteJoint);
 }
 
-// Relie 2 corps avec une corde de longueur length
+/**
+ * Relie 2 corps avec une corde
+ * @param {Box2D.b2World} world
+ * @param {Box2D.b2Body} bodyA
+ * @param {Box2D.b2Body} bodyB
+ * @param {Box2D.b2Vec2} originB
+ * @param {number} length longueur de la corde
+ * @returns {Box2D.b2RopeJoint}
+ */
 function ropeJoinBodies(world, bodyA, bodyB, originB, length) {
     var jd = new Box2D.b2RopeJointDef();
     jd.set_bodyA(bodyA);
@@ -192,6 +194,21 @@ function ropeJoinBodies(world, bodyA, bodyB, originB, length) {
     var joint = world.CreateJoint(jd);
     Box2D.destroy(jd);
     return Box2D.castObject(joint, Box2D.b2RopeJoint);
+}
+
+// unused // 
+function _weldJoinBodies(world, bodyA, bodyB, aX, aY, bX, bY, collide = true) {
+    var jd = new Box2D.b2WeldJointDef();
+    jd.set_bodyA(bodyA);
+    jd.set_bodyB(bodyB);
+    jd.set_localAnchorA(new Box2D.b2Vec2(aX, aY));
+    jd.set_localAnchorB(new Box2D.b2Vec2(bX, bY));
+    if (collide) jd.set_collideConnected(true);
+    jd.set_dampingRatio(0.5);
+    jd.set_referenceAngle(0);
+    var joint = world.CreateJoint(jd);
+    Box2D.destroy(jd);
+    return Box2D.castObject(joint, Box2D.b2WeldJoint);
 }
 
 
