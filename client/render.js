@@ -94,3 +94,12 @@ export function renderGameControls(vCtx, game, playerIdToFollow, controlKeys) {
         }
     }
 }
+
+/**
+ * Affiche le curseur
+ * @param {RenderContext} viewportContext
+ * @param {Cursor} cursor
+ */
+export function renderCursor(viewportContext, cursor) {
+    viewportContext.drawImage("cursor", cursor.viewportX, cursor.viewportY, 16, 16);
+}

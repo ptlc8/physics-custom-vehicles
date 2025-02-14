@@ -1,4 +1,4 @@
-import Scene from "../scene.js";
+import Scene from "../engine/scene.js";
 import { renderVehicleEditor } from "../render.js";
 import VehiclePart from "../../common/physics/part.js";
 
@@ -6,6 +6,7 @@ import VehiclePart from "../../common/physics/part.js";
 const u = undefined; // tmp :)
 
 class BuildScene extends Scene {
+
     constructor() {
         super();
         /** @type {Array<Array<VehiclePart>>} */
@@ -13,7 +14,8 @@ class BuildScene extends Scene {
         /** @type {VehiclePart} */
         this.placingItem = undefined;
     }
-    render(remote, wCtx, vCtx, renderRatio, mousePos) {
+    
+    render(remote, wCtx, vCtx, renderRatio, cursor) {
         renderVehicleEditor(wCtx, this.vehiclePattern);
         // Barre d'inventaire
         if (remote.selfPlayer && remote.selfPlayer.inventory) {
@@ -29,91 +31,91 @@ class BuildScene extends Scene {
         }
         // Objet en placement
         if (this.placingItem) {
-            vCtx.drawImage(this.placingItem.id, mousePos.viewportX, mousePos.viewportY, 20, 20);
-            if (this.placingItem.contained) vCtx.drawImage(this.placingItem.contained.id, mousePos.viewportX, mousePos.viewportY, 18, 18);
+            vCtx.drawImage(this.placingItem.id, cursor.viewportX, cursor.viewportY, 20, 20);
+            if (this.placingItem.contained) vCtx.drawImage(this.placingItem.contained.id, cursor.viewportX, cursor.viewportY, 18, 18);
         }
         // Boutons start
         vCtx.drawImage("solo", 120, 0, 20, 20);
         vCtx.drawImage("duo", 120, -30, 20, 20);
         vCtx.drawImage("spectate", -120, -30, 20, 20);
     }
-    onMouseDown(remote, event) {
-        // Clic gauche
-        if (event.button == 0) {
+
+    onClick(remote, input, cursor) {
+        if (input == "use") {
             // Bouton start
-            if (Math.sqrt(Math.pow(120 - event.viewportX, 2) + Math.pow(event.viewportY, 2)) < 10) {
+            if (Math.sqrt(Math.pow(120 - cursor.viewportX, 2) + Math.pow(cursor.viewportY, 2)) < 10) {
                 remote.startSolo(reducePattern(this.vehiclePattern));
                 return;
             }
             // Bouton duo
-            if (Math.sqrt(Math.pow(event.viewportX - 120, 2) + Math.pow(event.viewportY + 30, 2)) < 10) {
+            if (Math.sqrt(Math.pow(cursor.viewportX - 120, 2) + Math.pow(cursor.viewportY + 30, 2)) < 10) {
                 remote.startMatch(reducePattern(this.vehiclePattern));
                 return;
             }
             // Bouton spectate
-            if (Math.sqrt(Math.pow(event.viewportX + 120, 2) + Math.pow(event.viewportY + 30, 2)) < 10) {
+            if (Math.sqrt(Math.pow(cursor.viewportX + 120, 2) + Math.pow(cursor.viewportY + 30, 2)) < 10) {
                 remote.spectate(parseInt(prompt("Quel est l'identifiant du joueur à regarder ?")));
                 return;
             }
             // Barre d'inventaire
-            let inventory = Object.entries(remote.selfPlayer.inventory).map(e => ({ id: e[0], amount: e[1].amount }));
-            let inventoryIndex = Math.floor(2.5 - event.viewportY / 40) * 9 + Math.floor((event.viewportX + 20 * Math.min(9, inventory.length)) / 40);
-            if (0 <= inventoryIndex && inventoryIndex < inventory.length && this.placingItem == undefined && inventory[inventoryIndex].amount > 0) {
+            let inventory = Object.entries(remote.selfPlayer.inventory).map(([id, item]) => ({ id, amount: item.amount }));
+            let inventoryIndex = Math.floor(2.5 - cursor.viewportY / 40) * 9 + Math.floor((cursor.viewportX + 20 * Math.min(9, inventory.length)) / 40);
+            if (inventory[inventoryIndex] && this.placingItem == undefined && inventory[inventoryIndex].amount > 0) {
                 this.placingItem = VehiclePart.createById(inventory[inventoryIndex].id);
                 remote.selfPlayer.removeFromInventory(inventory[inventoryIndex].id);
                 return;
             }
             // Édition du véhicule 
-            let vehicleIndex = Math.floor(event.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= vehicleIndex && vehicleIndex < this.vehiclePattern.length) {
-                let vehicleJndex = Math.floor((event.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= vehicleJndex && vehicleJndex < this.vehiclePattern[0].length && this.placingItem == undefined && this.vehiclePattern[vehicleIndex][vehicleJndex] != undefined) {
-                    this.placingItem = this.vehiclePattern[vehicleIndex][vehicleJndex].contained || this.vehiclePattern[vehicleIndex][vehicleJndex];
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex].contained) this.vehiclePattern[vehicleIndex][vehicleJndex].contained = undefined;
-                    else this.vehiclePattern[vehicleIndex][vehicleJndex] = undefined;
+            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
+            if (0 <= i && i < this.vehiclePattern.length) {
+                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
+                if (0 <= j && j < this.vehiclePattern[0].length && this.placingItem == undefined && this.vehiclePattern[i][j] != undefined) {
+                    this.placingItem = this.vehiclePattern[i][j].contained || this.vehiclePattern[i][j];
+                    if (this.vehiclePattern[i][j].contained) this.vehiclePattern[i][j].contained = undefined;
+                    else this.vehiclePattern[i][j] = undefined;
                     return;
                 }
             }
         }
-        // Clic droit
-        if (event.button == 2) {
-            let vehicleIndex = Math.floor(event.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= vehicleIndex && vehicleIndex < this.vehiclePattern.length) {
-                let vehicleJndex = Math.floor((event.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= vehicleJndex && vehicleJndex < this.vehiclePattern[0].length/* && this.placingItem==undefined*/) {
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex] == undefined) return;
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex].rotate4) {
-                        this.vehiclePattern[vehicleIndex][vehicleJndex].rotation = ((this.vehiclePattern[vehicleIndex][vehicleJndex].rotation || 0) + 1) % 4;
+        if (input == "special") {
+            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
+            if (0 <= i && i < this.vehiclePattern.length) {
+                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
+                if (0 <= j && j < this.vehiclePattern[0].length/* && this.placingItem==undefined*/) {
+                    if (this.vehiclePattern[i][j] == undefined) return;
+                    if (this.vehiclePattern[i][j].rotate4) {
+                        this.vehiclePattern[i][j].rotation = ((this.vehiclePattern[i][j].rotation || 0) + 1) % 4;
                     }
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex].rotate8) {
-                        this.vehiclePattern[vehicleIndex][vehicleJndex].rotation = ((this.vehiclePattern[vehicleIndex][vehicleJndex].rotation || 0) + .5) % 4;
+                    if (this.vehiclePattern[i][j].rotate8) {
+                        this.vehiclePattern[i][j].rotation = ((this.vehiclePattern[i][j].rotation || 0) + .5) % 4;
                     }
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex].colors)
-                        this.vehiclePattern[vehicleIndex][vehicleJndex].color = ((this.vehiclePattern[vehicleIndex][vehicleJndex].color || 0) + 1) % this.vehiclePattern[vehicleIndex][vehicleJndex].colors;
+                    if (this.vehiclePattern[i][j].colors)
+                        this.vehiclePattern[i][j].color = ((this.vehiclePattern[i][j].color || 0) + 1) % this.vehiclePattern[i][j].colors;
                     return;
                 }
             }
         }
     }
-    onMouseUp(remote, event) {
-        if (event.button == 0) {
-            let vehicleIndex = Math.floor(event.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= vehicleIndex && vehicleIndex < this.vehiclePattern.length) {
-                let vehicleJndex = Math.floor((event.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= vehicleJndex && vehicleJndex < this.vehiclePattern[0].length) {
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex] != undefined && this.vehiclePattern[vehicleIndex][vehicleJndex].contain && this.placingItem != undefined && this.placingItem.containable) {
-                        if (this.vehiclePattern[vehicleIndex][vehicleJndex].contained != undefined)
-                            remote.selfPlayer.addToInventory(this.vehiclePattern[vehicleIndex][vehicleJndex].contained.id);
-                        this.vehiclePattern[vehicleIndex][vehicleJndex].contained = this.placingItem;
+
+    onUnclick(remote, input, cursor) {
+        if (input == "use") {
+            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
+            if (0 <= i && i < this.vehiclePattern.length) {
+                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
+                if (0 <= j && j < this.vehiclePattern[0].length) {
+                    if (this.vehiclePattern[i][j] != undefined && this.vehiclePattern[i][j].contain && this.placingItem != undefined && this.placingItem.containable) {
+                        if (this.vehiclePattern[i][j].contained != undefined)
+                            remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].contained.id);
+                        this.vehiclePattern[i][j].contained = this.placingItem;
                         this.placingItem = undefined;
                         return;
                     }
-                    if (this.vehiclePattern[vehicleIndex][vehicleJndex] != undefined) {
-                        remote.selfPlayer.addToInventory(this.vehiclePattern[vehicleIndex][vehicleJndex].id);
-                        if (this.vehiclePattern[vehicleIndex][vehicleJndex].contained != undefined)
-                            remote.selfPlayer.addToInventory(this.vehiclePattern[vehicleIndex][vehicleJndex].contained.id);
+                    if (this.vehiclePattern[i][j] != undefined) {
+                        remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].id);
+                        if (this.vehiclePattern[i][j].contained != undefined)
+                            remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].contained.id);
                     }
-                    this.vehiclePattern[vehicleIndex][vehicleJndex] = this.placingItem;
+                    this.vehiclePattern[i][j] = this.placingItem;
                     this.placingItem = undefined;
                     return;
                 }
@@ -125,12 +127,6 @@ class BuildScene extends Scene {
                 this.placingItem = undefined;
             }
         }
-    }
-    onKeyDown(remote, event) {
-
-    }
-    onKeyUp(remote, event) {
-
     }
 }
 

@@ -1,28 +1,21 @@
-import Scene from "../scene.js";
+import Scene from "../engine/scene.js";
 import { renderGame } from "../render.js";
 
 
 class SpectateScene extends Scene {
-    render(remote, wCtx, vCtx, renderRatio, mousePos) {
+
+    render(remote, wCtx, vCtx, renderRatio, cursor) {
         wCtx.camera.setSize(20);
         renderGame(wCtx, remote.game, remote.spectatedPlayerId);
         // TODO: renderSpectateControls(vCtx, game)
     }
-    onMouseDown(remote, event) {
-
-    }
-    onMouseUp(remote, event) {
-
-    }
-    onKeyDown(remote, event) {
-        if (event.code == "ArrowLeft") {
-            remote.spectatePrevious();
-        } else if (event.code == "ArrowRight") {
+    
+    onClick(remote, input, cursor) {
+        if (input == "use") {
             remote.spectateNext();
+        } else if (input == "special") {
+            remote.spectatePrevious();
         }
-    }
-    onKeyUp(remote, event) {
-
     }
 }
 
