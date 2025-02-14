@@ -74,18 +74,6 @@ class World {
 	 * Détruit le monde
 	 */
 	destroy() {
-		/*let body = this.world.GetBodyList();
-		for (let i = 0; i < this.world.GetBodyCount(); i++) {
-			let b = body;
-			body = body.GetNext();
-			this.world.DestroyBody(b);
-		}
-		let joint = this.world.GetJointList();
-		for (let i = 0; i < this.world.GetJointCount(); i++) {
-			let j = joint;
-			joint = joint.GetNext();
-			this.world.DestroyJoint(j);
-		}*/
 		Box2D.destroy(this.world);
 	}
 	/**
