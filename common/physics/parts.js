@@ -20,7 +20,7 @@ class Waffle extends VehiclePart {
 	}
 }
 
-class Box extends VehiclePart { // biscuit
+class Box extends VehiclePart { // biscuit ? chocolat ?
 	constructor(contained = null) {
 		super(.3, new Shape.Box(.5, .5));
 		this.attach = true;
@@ -170,19 +170,19 @@ class PopCorn extends VehiclePart {
 
 // toaster
 // parapluie
-// ressort
+// ressort // marshmallow ?
 // corde // reglisse ?
 // axe de rotation (en mode pince)
 
 
 export function registerParts() {
 	VehiclePart.register("waffle", Waffle);
-	VehiclePart.register("box+", Box);
-	VehiclePart.register("w+", Wheel);
-	VehiclePart.register("w-", SmallWheel);
+	VehiclePart.register("box", Box);
+	VehiclePart.register("wheel", Wheel);
+	VehiclePart.register("small-wheel", SmallWheel);
 	VehiclePart.register("player", PlayerVehiclePart);
 	VehiclePart.register("firework", Firework);
-	VehiclePart.register("p", Propeller);
+	VehiclePart.register("propeller", Propeller);
 	VehiclePart.register("balloon", Balloon);
 	VehiclePart.register("weight", Weight);
 	VehiclePart.register("pop", PopCorn);
