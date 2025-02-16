@@ -61,14 +61,27 @@ export function renderGame(wCtx, game, playerIdToFollow) {
     }
     // Véhicules
     for (const [index, vehicle] of Object.entries(game.world.vehicles)) {
-        for (let line of vehicle.parts) for (let part of line) {
-            if (part == undefined) continue;
-            wCtx.drawImage(part.id + (part.color != undefined ? part.color : ""), part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), 1, 1, part.body.GetAngle());
-            if (part.contained)
-                wCtx.drawImage(part.contained.id, part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), .9, .9, part.body.GetAngle());
-            if (part.id == "player" || (part.contained && part.contained.id == "player"))
-                wCtx.drawText("Joueur " + game.opponents[index], part.body.GetPosition().get_x(), part.body.GetPosition().get_y() - 1, .5, "white", 0, "black", "center");
-        }
+        renderVehicle(wCtx, vehicle, "Joueur " + game.opponents[index]);
+    }
+}
+
+/**
+ * Affiche un véhicule
+ * @param {RenderContext} wCtx
+ * @param {Vehicle} vehicle
+ * @param {string} name
+ */
+export function renderVehicle(wCtx, vehicle, name="") {
+    for (let line of vehicle.parts) for (let part of line) {
+        if (part == undefined) continue;
+        if (part.attachColor)
+            for (let joint of part.joints)
+                wCtx.drawLine(part.attachColor, joint.GetAnchorA().get_x(), joint.GetAnchorA().get_y(), joint.GetAnchorB().get_x(), joint.GetAnchorB().get_y(), .05);
+        wCtx.drawImage(part.id + (part.color != undefined ? part.color : ""), part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), 1, 1, part.body.GetAngle());
+        if (part.contained)
+            wCtx.drawImage(part.contained.id, part.body.GetPosition().get_x(), part.body.GetPosition().get_y(), .9, .9, part.body.GetAngle());
+        if (part.id == "player" || (part.contained && part.contained.id == "player"))
+            wCtx.drawText(name, part.body.GetPosition().get_x(), part.body.GetPosition().get_y() - 1, .5, "white", 0, "black", "center");
     }
 }
 
