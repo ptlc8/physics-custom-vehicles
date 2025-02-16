@@ -23,14 +23,10 @@ class Scene {
      */
     onInputs(remote, inputs, cursor) {
         for (let input in inputs) {
-            if (inputs[input].clicked) {
+            if (inputs[input].clicked)
                 this.onClick(remote, input, cursor);
-                console.log("click", input);
-            }
-            if (inputs[input].unclicked) {
+            if (inputs[input].unclicked)
                 this.onUnclick(remote, input, cursor);
-                console.log("unclick", input);
-            }
         }
     }
 

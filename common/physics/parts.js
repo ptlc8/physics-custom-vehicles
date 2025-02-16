@@ -46,6 +46,8 @@ class Wheel extends VehiclePart { // donut
 		this.motorized = true;
 		this.friction = 3;
 		this.attachType = "revolute";
+		this.attachDistance = 0;
+		this.attachableDistance = .5;
 		this.activable = true;
 		this.needjointtoactivable = true;
 	}
@@ -67,8 +69,9 @@ class SmallWheel extends VehiclePart {
 		this.rotate4 = true;
 		this.rotationAttachable = true;
 		this.friction = 1;
-		this.linkD = .75;
 		this.attachType = "revolute";
+		this.attachDistance = 0;
+		this.attachableDistance = .25;
 	}
 	getParam() {
 		return this.rotation;
@@ -87,6 +90,8 @@ class Firework extends VehiclePart {
 		super(.2, new Shape.Box(.15, .35));
 		this.rotation = rotation;
 		this.attachable = true;
+		this.attachDistance = 0;
+		this.attachableDistance = 0.5;
 		this.rotate8 = true;
 		this.activable = true;
 	}
@@ -108,8 +113,8 @@ class Propeller extends VehiclePart {
 		this.rotation = rotation;
 		this.rotate4 = true;
 		this.rotationAttachable = true;
-		this.linkD = .62;
 		this.attachType = "default";
+		this.attachDistance = .12;
 		this.activable = true;
 		this.needjointtoactivable = true;
 	}
@@ -134,6 +139,7 @@ class Balloon extends VehiclePart { // -350g
 		this.attachable = true;
 		this.gravityinverted = true;
 		this.attachType = "rope";
+		this.attachColor = "black";
 		this.colors = 6;
 		this.color = color;
 	}
@@ -147,6 +153,8 @@ class Weight extends VehiclePart { // 336g // cerise
 		super(1.4, new Shape.Polygon([[.2, 0], [-.2, 0], [-.4, .4], [.4, .4]]));
 		this.attachable = true;
 		this.attachType = "rope";
+		this.attachDistance = 0;
+		this.attachColor = "black";
 	}
 }
 

@@ -45,6 +45,14 @@ class RenderContext {
         this.ctx.fillStyle = color;
         this.ctx.fillRect(this.worldToCamX(x), 0, this.worldToCamSize(w), this.ctx.canvas.height);
     }
+    drawLine(color, x1, y1, x2, y2, thickness = 1) {
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = this.worldToCamSize(thickness);
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.worldToCamX(x1), this.worldToCamY(y1));
+        this.ctx.lineTo(this.worldToCamX(x2), this.worldToCamY(y2));
+        this.ctx.stroke();
+    }
     drawLines(color, xs, ys, thickness = 1, close = false) {
         if (!xs.length || !ys.length || xs.length != ys.length) {
             console.error("[Engine] Invalid coordinates");

@@ -32,30 +32,47 @@ class Vehicle {
         // Création des liens entre les pièces du véhicule
         for (let i = 0; i < this.parts.length; i++) {
             for (let j = 0; j < this.parts[i].length; j++) {
-                if (!this.parts[i][j]) continue;
-                if (i != 0 && this.parts[i - 1][j] != undefined && this.parts[i - 1][j].attach) { // possible lien en y-
-                    if (this.parts[i][j].attach || this.parts[i][j].attachable)
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i - 1][j].body, new Box2D.b2Vec2(0, 1), undefined));
-                    if (this.parts[i][j].rotationAttachable && (this.parts[i][j].rotation || 0) == 0) {
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i - 1][j].body, new Box2D.b2Vec2(0, this.parts[i][j].linkD || 1), undefined, this.parts[i][j].motorized));
-                    }
+                let part = this.parts[i][j];
+                if (!part) continue;
+                // Si la pièce au dessus est une attache (y-)
+                let ymPart = this.parts[i - 1] ? this.parts[i - 1][j] : undefined;
+                if (ymPart && ymPart.attach) {
+                    // Si la pièce actuelle est une attache aussi ou attachable
+                    if (part.attach || part.attachable)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, ymPart.body, [0, -part.attachDistance], [0, ymPart.attachDistance + part.attachableDistance], undefined, part.motorized));
+                    // Si la pièce actuelle est rotativement attachable et tournée vers le hauts
+                    if (part.rotationAttachable && part.rotation == 0)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, ymPart.body, [0, -part.attachDistance], [0, ymPart.attachDistance + part.attachableDistance], undefined, part.motorized));
                 }
-                if (j != 0 && this.parts[i][j - 1] != undefined && this.parts[i][j - 1].attach) { // possible lien en x-
-                    if (this.parts[i][j].attach || this.parts[i][j].attachable)
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i][j - 1].body, new Box2D.b2Vec2(1, 0), undefined));
-                    if (this.parts[i][j].rotationAttachable && this.parts[i][j].rotation == 3) {
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i][j - 1].body, new Box2D.b2Vec2(this.parts[i][j].linkD || 1, 0), undefined, this.parts[i][j].motorized));
-                    }
+                // Si la pièce à gauche est une attache (x-)
+                let xmPart = this.parts[i][j - 1];
+                if (xmPart && xmPart.attach) {
+                    // Si la pièce actuelle est une attache aussi ou attachable
+                    if (part.attach || part.attachable)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, xmPart.body, [-part.attachDistance, 0], [xmPart.attachDistance + part.attachableDistance, 0], undefined, part.motorized));
+                    // Si la pièce actuelle est rotativement attachable et tournée vers la gauche
+                    if (part.rotationAttachable && part.rotation == 3)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, xmPart.body, [0, -part.attachDistance], [xmPart.attachDistance + part.attachableDistance, 0], undefined, part.motorized));
                 }
-                if (i != this.parts.length - 1 && this.parts[i + 1][j] != undefined && this.parts[i + 1][j].attach) { // possible lien en y+
-                    if ((this.parts[i][j].rotationAttachable && this.parts[i][j].rotation == 2) || this.parts[i][j].attachable) {
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i + 1][j].body, new Box2D.b2Vec2(0, -(this.parts[i][j].linkD || 1)), undefined, this.parts[i][j].motorized));
-                    }
+                // Si la pièce en dessous est une attache (y+)
+                let ypPart = this.parts[i + 1] ? this.parts[i + 1][j] : undefined;
+                if (ypPart && ypPart.attach) {
+                    // Si la pièce actuelle est attachable
+                    if (part.attachable)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, ypPart.body, [0, part.attachDistance], [0, -ypPart.attachDistance - part.attachableDistance], undefined, part.motorized));
+                    // Si la pièce actuelle est rotativement attachable et tournée vers le bas
+                    if (part.rotationAttachable && part.rotation == 2)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, ypPart.body, [0, -part.attachDistance], [0, -ypPart.attachDistance - part.attachableDistance], undefined, part.motorized));
                 }
-                if (j != this.parts[i].length - 1 && this.parts[i][j + 1] != undefined && this.parts[i][j + 1].attach) { // possible lien en x+
-                    if ((this.parts[i][j].rotationAttachable && this.parts[i][j].rotation == 1) || this.parts[i][j].attachable) {
-                        this.parts[i][j].joints.push(joinBodies(world, this.parts[i][j].attachType, this.parts[i][j].body, this.parts[i][j + 1].body, new Box2D.b2Vec2(-(this.parts[i][j].linkD || 1), 0), undefined, this.parts[i][j].motorized));
-                    }
+                // Si la pièce à droite est une attache (x+)
+                let xpPart = this.parts[i][j + 1];
+                if (xpPart && xpPart.attach) {
+                    // Si la pièce actuelle est attachable
+                    if (part.attachable)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, xpPart.body, [part.attachDistance, 0], [-xpPart.attachDistance - part.attachableDistance, 0], undefined, part.motorized));
+                    // Si la pièce actuelle est rotativement attachable et tournée vers la droite
+                    if (part.rotationAttachable && part.rotation == 1)
+                        part.joints.push(joinBodies(world, part.attachType, part.body, xpPart.body, [0, -part.attachDistance], [-xpPart.attachDistance - part.attachableDistance, 0], undefined, part.motorized));
                 }
             }
         }
@@ -111,15 +128,16 @@ class Vehicle {
  * @param {string} joinType
  * @param {Box2D.b2Body} bodyA
  * @param {Box2D.b2Body} bodyB
- * @param {Box2D.b2Vec2} originB
+ * @param {[number, number]} originA
+ * @param {[number, number]} originB
  * @param {number} angleOrLength
  * @param {boolean} motor
  * @returns {Box2D.b2RevoluteJoint|Box2D.b2RopeJoint|Box2D.b2WeldJoint}
  */
-function joinBodies(world, joinType, bodyA, bodyB, originB, angleOrLength = joinType == "rope" ? 2 : bodyB.GetAngle() - bodyA.GetAngle(), motor = false) {
-    if (joinType == "revolute") return revoluteJoinBodies(world, bodyA, bodyB, originB, angleOrLength, motor);
-    if (joinType == "rope") return ropeJoinBodies(world, bodyA, bodyB, originB, angleOrLength);
-    return weldJoinBodies(world, bodyA, bodyB, originB, angleOrLength);
+function joinBodies(world, joinType, bodyA, bodyB, originA, originB, angleOrLength = joinType == "rope" ? 2 : bodyB.GetAngle() - bodyA.GetAngle(), motor = false) {
+    if (joinType == "revolute") return revoluteJoinBodies(world, bodyA, bodyB, originA, originB, angleOrLength, motor);
+    if (joinType == "rope") return ropeJoinBodies(world, bodyA, bodyB, originA, originB, angleOrLength);
+    return weldJoinBodies(world, bodyA, bodyB, originA, originB, angleOrLength);
 }
 
 /**
@@ -127,15 +145,17 @@ function joinBodies(world, joinType, bodyA, bodyB, originB, angleOrLength = join
  * @param {Box2D.b2World} world
  * @param {Box2D.b2Body} bodyA
  * @param {Box2D.b2Body} bodyB
- * @param {Box2D.b2Vec2} originB
+ * @param {[number, number]} originA
+ * @param {[number, number]} originB
  * @param {number} angle
  * @returns {Box2D.b2WeldJoint}
  */
-function weldJoinBodies(world, bodyA, bodyB, originB, angle) {
+function weldJoinBodies(world, bodyA, bodyB, originA, originB, angle) {
     var jd = new Box2D.b2WeldJointDef();
     jd.set_bodyA(bodyA);
     jd.set_bodyB(bodyB);
-    jd.set_localAnchorB(originB);
+    jd.set_localAnchorA(new Box2D.b2Vec2(...originA));
+    jd.set_localAnchorB(new Box2D.b2Vec2(...originB));
     jd.set_collideConnected(true);
     jd.set_dampingRatio(0.5);
     jd.set_referenceAngle(angle);
@@ -149,18 +169,19 @@ function weldJoinBodies(world, bodyA, bodyB, originB, angle) {
  * @param {Box2D.b2World} world
  * @param {Box2D.b2Body} bodyA
  * @param {Box2D.b2Body} bodyB
- * @param {Box2D.b2Vec2} originB
+ * @param {[number, number]} originA
+ * @param {[number, number]} originB
  * @param {number} angle
  * @param {boolean} motor
  * @returns {Box2D.b2RevoluteJoint}
  */
-function revoluteJoinBodies(world, bodyA, bodyB, originB, angle = 0, motor = false) {
+function revoluteJoinBodies(world, bodyA, bodyB, originA, originB, angle = 0, motor = false) {
     var jd = new Box2D.b2RevoluteJointDef();
     //jd.Initialize(bodyA, bodyB, bodyA.GetPosition());
     jd.set_bodyA(bodyA);
     jd.set_bodyB(bodyB);
-    //jd.set_localAnchorA(new Box2D.b2Vec2(aX,aY));
-    jd.set_localAnchorB(originB);
+    jd.set_localAnchorA(new Box2D.b2Vec2(...originA));
+    jd.set_localAnchorB(new Box2D.b2Vec2(...originB));
     //jd.set_collideConnected(true);
     jd.set_motorSpeed(0);
     jd.set_enableMotor(motor);
@@ -178,35 +199,22 @@ function revoluteJoinBodies(world, bodyA, bodyB, originB, angle = 0, motor = fal
  * @param {Box2D.b2World} world
  * @param {Box2D.b2Body} bodyA
  * @param {Box2D.b2Body} bodyB
- * @param {Box2D.b2Vec2} originB
+ * @param {[number, number]} originA
+ * @param {[number, number]} originB
  * @param {number} length longueur de la corde
  * @returns {Box2D.b2RopeJoint}
  */
-function ropeJoinBodies(world, bodyA, bodyB, originB, length) {
+function ropeJoinBodies(world, bodyA, bodyB, originA, originB, length) {
     var jd = new Box2D.b2RopeJointDef();
     jd.set_bodyA(bodyA);
     jd.set_bodyB(bodyB);
-    jd.set_localAnchorB(originB);
+    jd.set_localAnchorA(new Box2D.b2Vec2(...originA));
+    jd.set_localAnchorB(new Box2D.b2Vec2(...originB));
     jd.set_maxLength(length);
     jd.set_collideConnected(true);
     var joint = world.CreateJoint(jd);
     Box2D.destroy(jd);
     return Box2D.castObject(joint, Box2D.b2RopeJoint);
-}
-
-// unused // 
-function _weldJoinBodies(world, bodyA, bodyB, aX, aY, bX, bY, collide = true) {
-    var jd = new Box2D.b2WeldJointDef();
-    jd.set_bodyA(bodyA);
-    jd.set_bodyB(bodyB);
-    jd.set_localAnchorA(new Box2D.b2Vec2(aX, aY));
-    jd.set_localAnchorB(new Box2D.b2Vec2(bX, bY));
-    if (collide) jd.set_collideConnected(true);
-    jd.set_dampingRatio(0.5);
-    jd.set_referenceAngle(0);
-    var joint = world.CreateJoint(jd);
-    Box2D.destroy(jd);
-    return Box2D.castObject(joint, Box2D.b2WeldJoint);
 }
 
 
