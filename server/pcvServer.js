@@ -2,6 +2,8 @@ import Game from "../common/game.js";
 import Player from "../common/player.js";
 import WorldMap from "../common/map.js";
 import Gamemodes from "../common/gamemodes.js";
+import { isString, isNumber, isPositiveInteger, isValidVehiclePattern } from "./type-checks.js";
+
 
 function PcvServer() {
 	// Prochain id à utiliser
@@ -18,12 +20,29 @@ function PcvServer() {
 PcvServer.prototype.version = "0.1.0";
 
 
-// Lorsqu'un joueur se connecte
+// Lorsqu'un client se connecte
 PcvServer.prototype.connect = function(connectionId) {
 	
 }
 
-// Lorsqu'un joueur se déconnecte
+// Lorsqu'un client envoie une commande
+PcvServer.prototype.receiveMessage = function(data) {
+	if (!data)
+		return { error: "Malformed message" };
+	let command = this.commands[args.command];
+	if (!command)
+		return { error: "Unknow command" };
+	for (let arg in command.args) {
+		if (data[arg] === undefined)
+			return { error: "Need more arguments", arg: arg };
+		if (!command.args[arg](data[arg]))
+			return { error: "Invalid arg", arg: arg };
+	}
+	let response = command.execute.call(this, connectionId, data);
+	if (response) ws.send(JSON.stringify(response));
+}
+
+// Lorsqu'un client se déconnecte
 PcvServer.prototype.disconnect = function(connectionId) {
 	this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
 	if (this.players[connectionId])
@@ -50,7 +69,7 @@ PcvServer.prototype.commands = {};
 
 // Commande ping : renvoie le temps du serveur
 PcvServer.prototype.commands.ping = {
-	args:[],
+	args: {},
 	execute: function(connectionId, args) {
 		return {
 			time:Date.now()
@@ -60,7 +79,7 @@ PcvServer.prototype.commands.ping = {
 
 // Commande setname : renvoie l'inventaire du joueur
 PcvServer.prototype.commands.setname = {
-	args:["name"],
+	args: { "name": isString },
 	execute: function(connectionId, args) {
 		if (args.name.length < 3)
 			return {
@@ -77,7 +96,7 @@ PcvServer.prototype.commands.setname = {
 
 // Commande getinventory : renvoie l'inventaire du joueur
 PcvServer.prototype.commands.getinventory = {
-	args:[],
+	args: {},
 	execute: function(connectionId, args) {
 		return {
 			inventory:this.players[connectionId].inventory
@@ -87,7 +106,7 @@ PcvServer.prototype.commands.getinventory = {
 
 // Commande getvehicles : renvoie les véhicules du joueur
 PcvServer.prototype.commands.getvehicles = {
-	args:[],
+	args: {},
 	execute: function(connectionId, args) {
 		return {
 			vehicles:this.players[connectionId].vehicles
@@ -97,10 +116,8 @@ PcvServer.prototype.commands.getvehicles = {
 
 // Commande startsolo : démarre une instance de jeu solo
 PcvServer.prototype.commands.startsolo = {
-	args:["vehiclePattern"],
+	args: { vehiclePattern: isValidVehiclePattern },
 	execute: function(connectionId, args) {
-		if (!isValidVehiclePattern(args.vehiclePattern))
-			return {error:"Invalid pattern"};
 		let map = new WorldMap(WorldMap.createSinusoidalGround(), [[0,0]]);
 		let vehiclesPatterns = [args.vehiclePattern];
 		let opponents = [connectionId];
@@ -121,13 +138,11 @@ PcvServer.prototype.commands.startsolo = {
 
 // Commande activate : uniquement en jeu, active un controle du véhicule
 PcvServer.prototype.commands.activate = {
-	args:["index"],
+	args: { index: isPositiveInteger },
 	execute: function(connectionId, args) {
 		let gameId = this.players[connectionId].game;
 		if (gameId === undefined)
 			return {error:"Not in game"};
-		if (typeof args.index != "number" || args.index < 0)
-			return {error:"Invalid index"};
 		var event = this.games[gameId].activate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
@@ -135,13 +150,11 @@ PcvServer.prototype.commands.activate = {
 
 // Commande disactivate : uniquement en jeu, désactive un controle du véhicule
 PcvServer.prototype.commands.disactivate = {
-	args:["index"],
+	args: { index: isPositiveInteger },
 	execute: function(connectionId, args) {
 		let gameId = this.players[connectionId].game;
 		if (gameId === undefined)
 			return {error:"Not in game"};
-		if (typeof args.index != "number" || args.index < 0)
-			return {error:"Invalid index"};
 		var event = this.games[gameId].disactivate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
@@ -149,7 +162,7 @@ PcvServer.prototype.commands.disactivate = {
 
 // Commande disactivate : uniquement en jeu, désactive un controle du véhicule
 PcvServer.prototype.commands.spectate = {
-	args:["playerId"],
+	args: { playerId: isNumber },
 	execute: function(connectionId, args) {
 		if (this.players[connectionId].game !== undefined)
 			return {error:"In game"};
@@ -175,11 +188,9 @@ PcvServer.prototype.commands.spectate = {
 
 // Commande startmatch : recherche puis démarre une instance de match 1v1
 PcvServer.prototype.commands.startmatch = {
-	args: ["vehiclePattern"],
+	args: { vehiclePattern: isValidVehiclePattern},
 	execute: function(connectionId, args) {
 		let gamemode = Gamemodes.RUSH;
-		if (!isValidVehiclePattern(args.vehiclePattern))
-			return {error:"Invalid pattern"};
 		if (this.waitingPlayers.length >= gamemode.players-1) {
 			let map = WorldMap.createMatchMap();
 			let vehiclesPatterns = [];
@@ -215,7 +226,7 @@ PcvServer.prototype.commands.startmatch = {
 };
 
 PcvServer.prototype.commands.leavequeue = {
-	args: [],
+	args: {},
 	execute: function(connectionId, args) {
 		this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
 		return {
@@ -224,20 +235,5 @@ PcvServer.prototype.commands.leavequeue = {
 	}
 };
 
-function isValidVehiclePattern(pattern, width=7, height=5) {
-	if (pattern.length > height) return false;
-	let havePlayer = false;
-	for (let line of pattern) {
-		if (line.length > width) return false;
-		for (let part of line) {
-			if (part == undefined) continue;
-			if (typeof part !== "object")
-				return false;
-			if (part.id=="player" || (part.param && part.param.id == "player"))
-				havePlayer = true;
-		}
-	}
-	return havePlayer;
-}
 
 export default PcvServer; 
