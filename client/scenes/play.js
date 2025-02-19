@@ -11,6 +11,8 @@ class PlayScene extends Scene {
         wCtx.camera.setSize(20);
         renderGame(wCtx, remote.game, remote.selfPlayer.id);
         renderGameControls(vCtx, remote.game, remote.selfPlayer.id, controlKeys)
+        // TODO: if SOLO, home button
+        // TODO: Button class
     }
 
     onClick(remote, input, cursor) {

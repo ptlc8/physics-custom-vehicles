@@ -9,8 +9,10 @@ class SpectateScene extends Scene {
         renderGame(wCtx, remote.game, remote.spectatedPlayerId);
         // Boutons
         vCtx.drawImage("home", 0, 80, 20, 20);
-        vCtx.drawImage("previous", -120, 80, 20, 20);
-        vCtx.drawImage("next", 120, 80, 20, 20);
+        if (remote.game.opponents.length > 1) {
+            vCtx.drawImage("previous", -120, 80, 20, 20);
+            vCtx.drawImage("next", 120, 80, 20, 20);
+        }
     }
     
     onClick(remote, input, cursor) {
