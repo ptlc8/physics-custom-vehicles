@@ -123,8 +123,15 @@ class Remote {
             this.game.insertEvent(data.event.index, data.event.tick, data.event)
         } else if (command == "wait") {
             this.state = State.WAIT;
-        } else if (command == "leavequeue") {
+            this.selfPlayer.vehiclePattern = data.vehiclePattern;
+        } else if (command == "build") {
             this.state = State.BUILD;
+            this.game.stop();
+            this.game = undefined;
+        } else if (command == "addspectator") {
+            this.game.addSpectator(data.spectatorId);
+        } else if (command == "removespectator") {
+            this.game.removeSpectator(data.spectatorId);
         } else {
             return console.error("[ws] Unknow command : " + command);
         }
@@ -233,6 +240,13 @@ class Remote {
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.length - 1];
         else
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.indexOf(this.spectatedPlayerId) - 1];
+    }
+
+    /**
+     * Quitte une partie (SPECTATE ou PLAY)
+     */
+    leaveGame() {
+        this.send("leavegame");
     }
 }
 

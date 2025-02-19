@@ -14,7 +14,11 @@ export default {
 			throw "Not in game";
 		this.players[connectionId].game = gameId;
 		let game = this.games[gameId];
-		game.spectators.push(connectionId);
+		this.broadcastGame(gameId, {
+			command: "addspectator",
+			spectatorId: connectionId
+		});
+		game.addSpectator(connectionId);
 		return {
 			command: "spectate",
 			map: game.map,

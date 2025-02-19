@@ -2,7 +2,7 @@ import World from "./physics/world.js";
 export default Game;
 
 
-function Game(map, gamemode, vehiclesPatterns=[], opponents=[]) {
+function Game(map, gamemode, vehiclesPatterns = [], opponents = []) {
 	// Carte [sol, spawns] de la partie
 	this.map = map;
 	// Mode de jeu de la partie (cf. gamemodes.js)
@@ -22,15 +22,15 @@ function Game(map, gamemode, vehiclesPatterns=[], opponents=[]) {
 // démarre le monde
 Game.prototype.start = function() {
 	this.stop();
-	let startTime = Date.now()-this.world.tick/30*1000;
+	let startTime = Date.now() - this.world.tick / 30 * 1000;
 	this.updateIntervalId = setInterval(() => {
-		while (this.world.tick < (Date.now()-startTime)*30/1000) {
+		while (this.world.tick < (Date.now() - startTime) * 30 / 1000) {
 			this.world.update(this.events);
 			if (this.gamemode.isEnd(this.world)) {
 
 			}
 		}
-	}, 1000/30);
+	}, 1000 / 30);
 }
 
 // arrête le monde
@@ -40,7 +40,7 @@ Game.prototype.stop = function() {
 }
 
 // ajoute un évent à la suite de la liste et le retourne, unreal pour le client (les events envoyés pas encore reçus)
-Game.prototype.pushEvent = function(event, unreal=false) {
+Game.prototype.pushEvent = function(event, unreal = false) {
 	event.tick = this.world.tick;
 	if (!unreal) event.index = this.events.length;
 	this.events.push(event);
@@ -52,7 +52,7 @@ Game.prototype.insertEvent = function(index, tick, event) {
 	event.tick = tick;
 	event.index = index;
 	let toPlace = event;
-	for (let i = index; toPlace!==undefined; i++) {
+	for (let i = index; toPlace !== undefined; i++) {
 		if (this.events[i] && this.events[i].tag == event.tag) {
 			let unrealEvent = this.events[i];
 			this.events[i] = event;
@@ -86,19 +86,44 @@ Game.prototype.regenerate = function() {
 }
 
 // ajoute l'évent d'activation d'un contrôle
-Game.prototype.activate = function(playerId, controlIndex, tag=undefined, unreal=false) {
-	return this.pushEvent({name:"activate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
+Game.prototype.activate = function(playerId, controlIndex, tag = undefined, unreal = false) {
+	return this.pushEvent({
+		name: "activate",
+		opponentIndex: this.getOpponentIndex(playerId),
+		controlIndex: controlIndex,
+		tag: tag
+	}, unreal);
 }
 
 // ajoute l'évent de désactivation d'un contrôle
-Game.prototype.disactivate = function(playerId, controlIndex, tag=undefined, unreal=false) {
-	return this.pushEvent({name:"disactivate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
+Game.prototype.disactivate = function(playerId, controlIndex, tag = undefined, unreal = false) {
+	return this.pushEvent({
+		name: "disactivate",
+		opponentIndex: this.getOpponentIndex(playerId),
+		controlIndex: controlIndex,
+		tag: tag
+	}, unreal);
 }
 
-// retourne l'indice d'un joueur selon l'ordre des opposants
-Game.prototype.getPlayerIndex = function(playerId) {
-	for (let index in this.opponents)
-		if (this.opponents[index] == playerId)
-			return index;
-	return undefined; 
+// retourne l'indice d'un opposant à partir de son identifiant de joueur
+Game.prototype.getOpponentIndex = function(playerId) {
+	let opponentIndex = this.opponents.indexOf(playerId);
+	if (opponentIndex < 0)
+		throw "Invalid opponent";
+	return opponentIndex;
+}
+
+// ajoute un spectateur
+Game.prototype.addSpectator = function(playerId) {
+	this.spectators.push(playerId);
+	return true;
+}
+
+// supprime un spectateur
+Game.prototype.removeSpectator = function(playerId) {
+	let spectatorIndex = this.spectators.indexOf(playerId);
+	if (spectatorIndex < 0)
+		return false;
+	this.spectators.splice(spectatorIndex, 1);
+	return true;
 }

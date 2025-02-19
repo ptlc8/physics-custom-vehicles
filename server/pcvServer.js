@@ -13,13 +13,13 @@ export default class PcvServer {
 
 	constructor() {
 		/** @type {number} Prochain id à utiliser */
-		this.idIncrementer = 0;
+		this.idIncrementer = 1;
 		// Liste des joueurs connectés par identifiant de connexion
 		this.players = {};
 		// Liste des instances de jeu en cours par identifiant d'instance
 		this.games = {};
 		// Liste des joueurs en recherche avec identifiants
-		this.waitingPlayers = [];
+		this.waitingPlayersId = [];
 	}
 
 	/** @type {string} Version du serveur */
@@ -60,8 +60,18 @@ export default class PcvServer {
 	 * @param {number} connectionId
 	*/
 	disconnect(connectionId) {
-		this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
-		if (this.players[connectionId])
+		this.cancelWait(connectionId);
+		let player = this.players[connectionId];
+		if (player.game) {
+			let game = this.games[player.game];
+			if (game.removeSpectator(connectionId)) {
+				this.broadcastGame(player.game, {
+					command: "removespectator",
+					spectatorId: connectionId
+				});
+			}
+		}
+		if (player)
 			delete this.players[connectionId];
 	}
 
@@ -86,12 +96,20 @@ export default class PcvServer {
 	 * @param {Object} data
 	 */
     broadcastGame(gameId, data) {
+		if (!data) return;
 		let game = this.games[gameId];
 		if (game === undefined) return;
 		for (let connectionId of game.opponents)
-			this.send(connectionId, data);
+			if (this.players[connectionId].game == gameId)
+				this.send(connectionId, data);
 		for (let connectionId of game.spectators)
 			this.send(connectionId, data);
+	}
+
+	cancelWait(playerId) {
+		let waitIndex = this.waitingPlayersId.indexOf(playerId);
+		if (playerId >= 0)
+			this.waitingPlayersId.splice(waitIndex, 1);
 	}
 
 }

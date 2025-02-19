@@ -6,8 +6,8 @@ function Player(name) {
 	this.name = name;
 	// Inventaire du joueur
 	this.inventory = {};
-	// Véhicules préenregistrés
-	this.vehicles = [];
+	// Véhicule enregistré
+	this.vehiclePattern = undefined;
 	// identifiant de la game dans laquelle il est
 	this.game = undefined;
 	// Don de tous les pièces de véhicule à la création du joueur
@@ -33,7 +33,7 @@ Player.prototype.removeFromInventory = function(itemId, amount=1) {
 Player.cast = function(obj) {
 	let player = new Player(obj.name);
 	if (obj.inventory) player.inventory = obj.inventory;
-	if (obj.vehicles) player.vehicles = obj.vehicles;
+	if (obj.vehiclePattern) player.vehiclePattern = obj.vehiclePattern;
 	if (obj.game) player.game = obj.game;
 	return player;
 }

@@ -14,9 +14,21 @@ export function renderMap(wCtx, map) {
  */
 export function renderBackground(wCtx) {
     wCtx.camera.setDistance(10);
-    wCtx.drawRectInfiniteX("#6ab9e2", -2176, 242);
+    wCtx.drawRectInfiniteX("#6ab9e2", -20950, 2048);
     wCtx.drawImageInfiniteX("sky", 0, -128, 128, 72);
-    wCtx.drawRectInfiniteX("#b4d5f4", -56, 2048);
+    wCtx.drawRectInfiniteX("#b4d5f4", 230, 2048);
+    wCtx.camera.setDistance(1);
+}
+
+/**
+ * Affiche le fond (ciel bleu)
+ * @param {RenderContext} wCtx
+ */
+export function renderNightBackground(wCtx) {
+    wCtx.camera.setDistance(10);
+    wCtx.drawRectInfiniteX("#9d3945", -20950, 2048);
+    wCtx.drawImageInfiniteX("night-sky", 0, -128, 128, 72);
+    wCtx.drawRectInfiniteX("#ae3846", 230, 2048);
     wCtx.camera.setDistance(1);
 }
 
@@ -26,6 +38,8 @@ export function renderBackground(wCtx) {
  * @param {Array<Array<VehiclePart>>} vehiclePattern
  */
 export function renderVehicleEditor(wCtx, vehiclePattern) {
+    wCtx.camera.setSize(10);
+    wCtx.camera.setPos(0, -1);
     for (let i = 0; i < vehiclePattern.length; i++)
         for (let j = 0; j < vehiclePattern[i].length; j++) {
             wCtx.drawRect("#D0D0D0", j * 1.2 - (.6 * vehiclePattern[i].length) + .6, (i - vehiclePattern.length + 1) * 1.2 - .6, 1, 1);
@@ -50,7 +64,7 @@ export function renderVehicleEditor(wCtx, vehiclePattern) {
 export function renderGame(wCtx, game, playerIdToFollow) {
     if (game === undefined) return;
     // Centrage de la caméra sur le véhicule du joueur
-    let opponentIndexToFollow = game.getPlayerIndex(playerIdToFollow);
+    let opponentIndexToFollow = game.getOpponentIndex(playerIdToFollow);
     if (game.world.vehicles[opponentIndexToFollow] !== undefined) {
         let toFollow = game.world.vehicles[opponentIndexToFollow].pos;
         wCtx.camera.setPos(toFollow ? toFollow.get_x() : 0, toFollow ? toFollow.get_y() : 0);
@@ -93,7 +107,7 @@ export function renderVehicle(wCtx, vehicle, name="") {
  * @param {{ code: string, display: string }[]} controlKeys
  */
 export function renderGameControls(vCtx, game, playerIdToFollow, controlKeys) {
-    let opponentIndexToFollow = game.getPlayerIndex(playerIdToFollow);
+    let opponentIndexToFollow = game.getOpponentIndex(playerIdToFollow);
     for (const [index, vehicle] of Object.entries(game.world.vehicles)) {
         if (index == opponentIndexToFollow) {
             // Affichage des contrôles du véhicule du joueur

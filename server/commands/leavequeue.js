@@ -1,9 +1,9 @@
 export default {
 	args: {},
 	execute: function(connectionId, args) {
-		this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
+		this.cancelWait(connectionId);
 		return {
-			command: "leavequeue"
+			command: "build"
 		};
 	}
 };

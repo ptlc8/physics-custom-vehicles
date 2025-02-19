@@ -40,13 +40,15 @@ var kId = 0;
 
 // Création du serveur pcv
 const pcvs = new PcvServer();
-pcvs.send = function(connectionId, object) {
+pcvs.send = function(connectionId, data) {
+	if (!data) return;
 	if (clients[connectionId])
-		clients[connectionId].send(JSON.stringify(object));
+		clients[connectionId].send(JSON.stringify(data));
 }
-pcvs.broadcast = function(object) {
+pcvs.broadcast = function(data) {
+	if (!data) return;
 	for (let client of Object.values(clients))
-		client.send(JSON.stringify(object));
+		client.send(JSON.stringify(data));
 }
 console.info(`[pcv] Version du serveur : ${PcvServer.version}`);
 

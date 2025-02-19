@@ -1,11 +1,18 @@
 import Scene from "../engine/scene.js";
+import Button from "../engine/button.js";
 import { renderVehicleEditor } from "../render.js";
 
 
 class WaitScene extends Scene {
+
+    constructor() {
+        super();
+        this.leaveButton = new Button("quit", 120, 0, 20);
+    }
     
     render(remote, wCtx, vCtx, renderRatio, cursor) {
-        // TODO: renderVehicleEditor(wCtx, vehiclePattern);
+        renderVehicleEditor(wCtx, remote.selfPlayer.vehiclePattern);
+        this.leaveButton.draw(vCtx);
         vCtx.drawImage("quit", 120, 0, 20, 20);
         let loadDots = new Array(3).fill(" ");
         loadDots[parseInt(Date.now() / 400) % loadDots.length] = ".";
@@ -16,7 +23,7 @@ class WaitScene extends Scene {
     onClick(remote, input, cursor) {
         if (input == "use") {
             // Bouton quitter la queue
-            if (Math.sqrt(Math.pow(120 - event.viewportX, 2) + Math.pow(event.viewportY, 2)) < 10) {
+            if (this.leaveButton.isHover(cursor)) {
                 remote.leaveQueue();
             }
         }

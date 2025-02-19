@@ -9,7 +9,7 @@ export default {
 	args: { vehiclePattern: isValidVehiclePattern},
 	execute: function(connectionId, args) {
 		let gamemode = Gamemodes.RUSH;
-		if (this.waitingPlayers.length >= gamemode.players-1) {
+		if (this.waitingPlayersId.length >= gamemode.players-1) {
 			let map = WorldMap.createMatchMap();
 			let vehiclesPatterns = [];
 			let opponents = [];
@@ -18,10 +18,11 @@ export default {
 			opponents.push(connectionId);
 			this.players[connectionId].game = gameId;
 			for (let i = 0; i < gamemode.players-1; i++) {
-				let opponent = this.waitingPlayers.shift();
-				vehiclesPatterns.push(opponent.vehiclePattern);
-				opponents.push(opponent.id);
-				this.players[opponent.id].game = gameId;
+				let playerId = this.waitingPlayersId.shift();
+				let player = this.players[playerId];
+				vehiclesPatterns.push(player.vehiclePattern);
+				opponents.push(playerId);
+				player.game = gameId;
 			}
 			this.games[gameId] = new Game(map, gamemode, vehiclesPatterns, opponents);
 			this.games[gameId].start();
@@ -34,10 +35,13 @@ export default {
 				opponents: opponents
 			});
 		} else {
-			this.waitingPlayers.push({id:connectionId, vehiclePattern:args.vehiclePattern});
+			let player = this.players[connectionId];
+			player.vehiclePattern = args.vehiclePattern;
+			this.waitingPlayersId.push(connectionId);
 			console.log("[pcv] Joueur ("+connectionId+") en recherche de match");
 			return {
-				command: "wait"
+				command: "wait",
+				vehiclePattern: args.vehiclePattern
 			};
 		}
 	}
