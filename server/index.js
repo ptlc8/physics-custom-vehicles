@@ -58,25 +58,23 @@ function onConnection(ws) {
 	clients[connectionId] = ws;
 	pcvs.connect(connectionId);
 	ws.on('message', function(message) {
-		let args;
+		let data;
 		try {
-			args = JSON.parse(message);
+			data = JSON.parse(message);
 		} catch (e) {
 			ws.send('{"error":"Malformed JSON"}');
 			return;
 		}
-		if (!args || pcvs.commands[args.command] == undefined) {
-			ws.send('{"error":"Unknow command"}');
-			return;
+		try {
+			let response = pcvs.receiveMessage(data);
+		} catch (e) {
+			if (typeof e == "string")
+				ws.send(JSON.stringify({ error: e }))
+			else
+				throw e;
 		}
-		for (let arg of pcvs.commands[args.command].args) {
-			if (args[arg] === undefined) {
-				ws.send(`{"error":"Need more args","need":"${arg}"}`);
-				return;
-			}
-		}
-		let response = pcvs.commands[args.command].execute.call(pcvs, connectionId, args);
-		if (response) ws.send(JSON.stringify(response));
+		if (response)
+			ws.send(JSON.stringify(response));
 	});
 	ws.on('close', function() {
 		console.log(`[wss] Déconnexion (${connectionId})`);
