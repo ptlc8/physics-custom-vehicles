@@ -4,7 +4,7 @@ import BuildScene from "./scenes/build.js";
 import WaitScene from "./scenes/wait.js";
 import PlayScene from "./scenes/play.js";
 import SpectateScene from "./scenes/spectate.js";
-import { renderMap, renderBackground, renderCursor } from "./render.js";
+import { renderMap, renderNightBackground, renderCursor } from "./render.js";
 
 
 var scenes = {
@@ -65,7 +65,7 @@ function update(inputs, cursor, tps) {
  */
 function render(worldContext, viewportContext, renderRatio, cursor) {
 	worldContext.clear();
-	renderBackground(worldContext);
+	renderNightBackground(worldContext);
 	if (remote.game)
 		renderMap(worldContext, remote.game.map);
 	scenes[remote.state].render(remote, worldContext, viewportContext, renderRatio, cursor);
