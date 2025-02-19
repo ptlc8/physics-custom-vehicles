@@ -25,7 +25,7 @@ PcvServer.prototype.connect = function(connectionId) {
 
 // Lorsqu'un joueur se déconnecte
 PcvServer.prototype.disconnect = function(connectionId) {
-	this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
+	this.waitingPlayers.splice(this.waitingPlayers.findIndex(e=>e.id==connectionId), 1);
 	if (this.players[connectionId])
 		delete this.players[connectionId];
 }
@@ -217,10 +217,22 @@ PcvServer.prototype.commands.startmatch = {
 PcvServer.prototype.commands.leavequeue = {
 	args: [],
 	execute: function(connectionId, args) {
-		this.waitingPlayers.splice(this.waitingPlayers.find(e=>e.id==connectionId), 1);
+		this.waitingPlayers.splice(this.waitingPlayers.findIndex(e=>e.id==connectionId), 1);
 		return {
-			command: "leavequeue"
+			command: "build"
 		};
+	}
+};
+
+PcvServer.prototype.commands.leavespectate = {
+	args: [],
+	execute: function(connectionId, args) {
+		let game = this.games[this.players[connectionId].game];
+		game.spectators.splice(game.spectators.indexOf(connectionId), 1);
+		this.players[connectionId].game = undefined;
+		return {
+			command: "build"
+		}
 	}
 };
 

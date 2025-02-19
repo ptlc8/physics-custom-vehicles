@@ -21,6 +21,18 @@ export function renderBackground(wCtx) {
 }
 
 /**
+ * Affiche le fond (ciel bleu)
+ * @param {RenderContext} wCtx
+ */
+export function renderBackground(wCtx) {
+    wCtx.camera.setDistance(10);
+    wCtx.drawRectInfiniteX("#6ab9e2", -2176, 242);
+    wCtx.drawImageInfiniteX("sky", 0, -128, 128, 72);
+    wCtx.drawRectInfiniteX("#b4d5f4", -56, 2048);
+    wCtx.camera.setDistance(1);
+}
+
+/**
  * Affiche l'éditeur de véhicule
  * @param {RenderContext} wCtx
  * @param {Array<Array<VehiclePart>>} vehiclePattern

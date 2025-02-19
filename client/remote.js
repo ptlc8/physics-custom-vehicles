@@ -123,7 +123,7 @@ class Remote {
             this.game.insertEvent(data.event.index, data.event.tick, data.event)
         } else if (command == "wait") {
             this.state = State.WAIT;
-        } else if (command == "leavequeue") {
+        } else if (command == "build") {
             this.state = State.BUILD;
         } else {
             return console.error("[ws] Unknow command : " + command);
@@ -233,6 +233,13 @@ class Remote {
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.length - 1];
         else
             this.spectatedPlayerId = this.game.opponents[this.game.opponents.indexOf(this.spectatedPlayerId) - 1];
+    }
+
+    /**
+     * Arrête de regarder un autre joueur jouer
+     */
+    leaveSpectate() {
+        this.send("leavespectate");
     }
 }
 
