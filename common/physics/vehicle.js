@@ -1,5 +1,5 @@
 import Box2D from "box2d.js";
-import VehiclePart from "./part.js";
+import { allParts, createPartById } from "./parts.js";
 
 
 /**
@@ -22,9 +22,9 @@ class Vehicle {
             this.parts[i] = [];
             for (let j = 0; j < reducedPattern[i].length; j++) {
                 if (!reducedPattern[i][j]) continue;
-                this.parts[i][j] = VehiclePart.createById(reducedPattern[i][j].id, reducedPattern[i][j].param);
+                this.parts[i][j] = createPartById(reducedPattern[i][j].id, reducedPattern[i][j].param);
                 this.parts[i][j].createBody(world, x + j, y + i);
-                if (this.parts[i][j] instanceof VehiclePart.all["player"] || this.parts[i][j].contained instanceof VehiclePart.all["player"]) {
+                if (this.parts[i][j] instanceof allParts["player"] || this.parts[i][j].contained instanceof allParts["player"]) {
                     this.pos = this.parts[i][j].body.GetPosition();
                 }
             }

@@ -1,6 +1,7 @@
 import Scene from "../engine/scene.js";
 import { renderVehicleEditor } from "../render.js";
 import VehiclePart from "../../common/physics/part.js";
+import { createPartById } from "../../common/physics/parts.js";
 
 
 const u = undefined; // tmp :)
@@ -61,7 +62,7 @@ class BuildScene extends Scene {
             let inventory = Object.entries(remote.selfPlayer.inventory).map(([id, item]) => ({ id, amount: item.amount }));
             let inventoryIndex = Math.floor(2.5 - cursor.viewportY / 40) * 9 + Math.floor((cursor.viewportX + 20 * Math.min(9, inventory.length)) / 40);
             if (inventory[inventoryIndex] && this.placingItem == undefined && inventory[inventoryIndex].amount > 0) {
-                this.placingItem = VehiclePart.createById(inventory[inventoryIndex].id);
+                this.placingItem = createPartById(inventory[inventoryIndex].id);
                 remote.selfPlayer.removeFromInventory(inventory[inventoryIndex].id);
                 return;
             }

@@ -1,10 +1,5 @@
 import Box2D from "box2d.js";
-import VehiclePart from "./part.js";
-import { registerParts } from "./parts.js";
 import Vehicle from "./vehicle.js";
-
-
-registerParts();
 
 
 /**
@@ -13,7 +8,7 @@ registerParts();
 class World {
 	/**
 	 * @param {WorldMap} map
-	 * @param {Array<Pattern>} vehiclesPatterns
+	 * @param {Array<Array<Array<Object>>>} vehiclesPatterns
 	 */
 	constructor(map, vehiclesPatterns = []) {
 		// Vecteur gravité (y est orienté vers le bas)

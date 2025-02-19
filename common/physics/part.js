@@ -94,39 +94,5 @@ class VehiclePart {
     }
 }
 
-VehiclePart.all = {};
-
-/**
- * Enregistre une pièce de véhicule
- * @param {string} id
- * @param {class<VehiclePart>} part
- */
-VehiclePart.register = function (id, partClass) {
-    VehiclePart.all[id] = partClass;
-    partClass.id = id;
-}
-
-/**
- * Retourne la classe de la pièce de véhicule par son identifiant
- * @param {string} id
- * @returns {class<VehiclePart>}
- */
-VehiclePart.getClassById = function (id) {
-    return VehiclePart.all[id];
-}
-
-/**
- * Crée une pièce de véhicule en prenant la classe correspondant à son identifiant
- * @param {string} id 
- * @param {...any} parameters 
- * @returns {VehiclePart}
- */
-VehiclePart.createById = function (id, ...parameters) {
-    let partClass = VehiclePart.getClassById(id);
-    if (!partClass)
-        throw new Error("Unknown part id " + id);
-    return new partClass(...parameters);
-}
-
 
 export default VehiclePart;

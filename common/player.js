@@ -1,4 +1,4 @@
-import VehiclePart from "./physics/part.js";
+import { allParts } from "./physics/parts.js";
 
 
 function Player(name) {
@@ -11,7 +11,7 @@ function Player(name) {
 	// identifiant de la game dans laquelle il est
 	this.game = undefined;
 	// Don de tous les pièces de véhicule à la création du joueur
-	for (let partId in VehiclePart.all) {
+	for (let partId in allParts) {
 		this.inventory[partId] = {amount:20};
 	}
 }
