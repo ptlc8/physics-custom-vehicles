@@ -25,7 +25,9 @@ PcvServer.prototype.connect = function(connectionId) {
 
 // Lorsqu'un joueur se déconnecte
 PcvServer.prototype.disconnect = function(connectionId) {
+	// TODO: splice only if in waiting players
 	this.waitingPlayers.splice(this.waitingPlayers.findIndex(e=>e.id==connectionId), 1);
+	// TODO: delete player from game (opponent or spectator)
 	if (this.players[connectionId])
 		delete this.players[connectionId];
 }
@@ -140,14 +142,14 @@ PcvServer.prototype.commands.disactivate = {
 		let gameId = this.players[connectionId].game;
 		if (gameId === undefined)
 			return {error:"Not in game"};
-		if (typeof args.index != "number" || args.index < 0)
+		if (typeof args.index != "number" || args.index < 0) // TODO: replace this with dynamic type checking
 			return {error:"Invalid index"};
 		var event = this.games[gameId].disactivate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
 };
 
-// Commande disactivate : uniquement en jeu, désactive un controle du véhicule
+// Commande spectate
 PcvServer.prototype.commands.spectate = {
 	args:["playerId"],
 	execute: function(connectionId, args) {
@@ -217,6 +219,7 @@ PcvServer.prototype.commands.startmatch = {
 PcvServer.prototype.commands.leavequeue = {
 	args: [],
 	execute: function(connectionId, args) {
+		// TODO: only if in waiting player
 		this.waitingPlayers.splice(this.waitingPlayers.findIndex(e=>e.id==connectionId), 1);
 		return {
 			command: "build"
@@ -224,12 +227,18 @@ PcvServer.prototype.commands.leavequeue = {
 	}
 };
 
-PcvServer.prototype.commands.leavespectate = {
+PcvServer.prototype.commands.leavegame = {
 	args: [],
 	execute: function(connectionId, args) {
-		let game = this.games[this.players[connectionId].game];
-		game.spectators.splice(game.spectators.indexOf(connectionId), 1);
+		let gameId = this.players[connectionId].game;
+		if (gameId === undefined)
+			return {error:"Not in game"};
+		let game = this.games[gameId];
+		if (game.spectators.includes(connectionId))
+			game.spectators.splice(game.spectators.indexOf(connectionId), 1);
+		// TODO: remove from opponents in Game
 		this.players[connectionId].game = undefined;
+		// TODO: refactor this
 		return {
 			command: "build"
 		}

@@ -87,11 +87,13 @@ Game.prototype.regenerate = function() {
 
 // ajoute l'évent d'activation d'un contrôle
 Game.prototype.activate = function(playerId, controlIndex, tag=undefined, unreal=false) {
+	// TODO: throw error when playerId is not in opponents
 	return this.pushEvent({name:"activate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
 }
 
 // ajoute l'évent de désactivation d'un contrôle
 Game.prototype.disactivate = function(playerId, controlIndex, tag=undefined, unreal=false) {
+	// TODO: throw error when playerId is not in opponents
 	return this.pushEvent({name:"disactivate",opponentIndex:this.getPlayerIndex(playerId),controlIndex:controlIndex,tag:tag}, unreal);
 }
 

@@ -236,10 +236,10 @@ class Remote {
     }
 
     /**
-     * Arrête de regarder un autre joueur jouer
+     * Quitte une partie (SPECTATE ou PLAY)
      */
-    leaveSpectate() {
-        this.send("leavespectate");
+    leaveGame() {
+        this.send("leavegame");
     }
 }
 

@@ -1,17 +1,25 @@
 import Scene from "../engine/scene.js";
+import Button from "../engine/button.js";
 import { renderGame } from "../render.js";
 
 
 class SpectateScene extends Scene {
 
+    constructor() {
+        super();
+        this.homeButton = new Button("home", -160, -85, 20);
+        this.previousButton = new Button("previous", -160, 85, 20);
+        this.nextButton = new Button("next", 160, 85, 20);
+    }
+
     render(remote, wCtx, vCtx, renderRatio, cursor) {
         wCtx.camera.setSize(20);
         renderGame(wCtx, remote.game, remote.spectatedPlayerId);
         // Boutons
-        vCtx.drawImage("home", 0, 80, 20, 20);
+        this.homeButton(vCtx);
         if (remote.game.opponents.length > 1) {
-            vCtx.drawImage("previous", -120, 80, 20, 20);
-            vCtx.drawImage("next", 120, 80, 20, 20);
+            this.previousButton.draw(vCtx);
+            this.nextButton.draw(vCtx);
         }
     }
     
@@ -22,12 +30,12 @@ class SpectateScene extends Scene {
         }
         if (input == "use") {
             // Bouton home
-            if (Math.sqrt(Math.pow(cursor.viewportX, 2) + Math.pow(cursor.viewportY - 80, 2)) < 10) {
-                remote.leaveSpectate();
+            if (this.homeButton.isHover(cursor)) {
+                remote.leaveGame();
                 return;
             }
             // Bouton précédent
-            if (Math.sqrt(Math.pow(cursor.viewportX + 120, 2) + Math.pow(cursor.viewportY - 80, 2)) < 10) {
+            if (this.previousButton.isHover(cursor)) {
                 remote.spectatePrevious();
                 return;
             }
