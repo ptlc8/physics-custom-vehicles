@@ -98,9 +98,8 @@ import { createRequire } from 'node:module';
 
 PcvServer.commands = {};
 
-const dirname = path.basename(import.meta.url);
-const require = createRequire(dirname);
-fs.readdirSync(path.join(dirname, "commands"))
+const require = createRequire(import.meta.url);
+fs.readdirSync(path.join(path.dirname(import.meta.url), "commands"))
 	.forEach(file => {
 		PcvServer.commands[path.basename(file)] = require(path.join(__dirname, 'commands', file));
 	});
