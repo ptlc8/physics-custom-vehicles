@@ -94,10 +94,12 @@ export default class PcvServer {
 
 import fs from "fs";
 import path from "path";
+import { createRequire } from 'node:module';
 
 PcvServer.commands = {};
 
-fs.readdirSync(path.join(__dirname, "commands"))
+const require = createRequire(import.meta.url);
+fs.readdirSync(path.join(path.basename(import.meta.url), "commands"))
 	.forEach(file => {
 		PcvServer.commands[path.basename(file)] = require(path.join(__dirname, 'commands', file));
 	});
