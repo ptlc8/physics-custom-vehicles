@@ -19,7 +19,7 @@ export default class PcvServer {
 	}
 
 	/** @type {string} Version du serveur */
-	static version = "0.1.0";
+	static version = "0.2.0";
 
 
 	/**
@@ -34,7 +34,7 @@ export default class PcvServer {
 	 * Lorsqu'un client envoie une commande
 	 * @param {any} data
 	 */
-	receiveMessage(data) {
+	receiveMessage(connectionId, data) {
 		if (!data)
 			return { error: "Malformed message" };
 		let command = PcvServer.commands[data.command];

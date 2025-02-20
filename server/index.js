@@ -48,7 +48,7 @@ pcvs.broadcast = function(object) {
 	for (let client of Object.values(clients))
 		client.send(JSON.stringify(object));
 }
-console.info(`[pcv] Version du jeu : ${pcvs.version}`);
+console.info(`[pcv] Version du serveur : ${PcvServer.version}`);
 
 // Lorsque quelqu'un se connecte
 function onConnection(ws) {
@@ -65,7 +65,7 @@ function onConnection(ws) {
 			return;
 		}
 		try {
-			let response = pcvs.receiveMessage(data);
+			let response = pcvs.receiveMessage(connectionId, data);
 		} catch (e) {
 			if (typeof e == "string")
 				ws.send(JSON.stringify({ error: e }))
