@@ -99,7 +99,6 @@ import { fileURLToPath } from 'url';
 PcvServer.commands = {};
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-console.log("dirname: " + dirname);
 const require = createRequire(import.meta.url);
 fs.readdirSync(path.join(dirname, "commands"))
 	.forEach(file => {

@@ -57,7 +57,7 @@ function onConnection(ws) {
 	clients[connectionId] = ws;
 	pcvs.connect(connectionId);
 	ws.on('message', function(message) {
-		let data;
+		let data, response;
 		try {
 			data = JSON.parse(message);
 		} catch (e) {
@@ -65,7 +65,7 @@ function onConnection(ws) {
 			return;
 		}
 		try {
-			let response = pcvs.receiveMessage(connectionId, data);
+			response = pcvs.receiveMessage(connectionId, data);
 		} catch (e) {
 			if (typeof e == "string")
 				ws.send(JSON.stringify({ error: e }))
