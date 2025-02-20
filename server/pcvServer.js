@@ -42,12 +42,11 @@ export default class PcvServer {
 			return { error: "Unknow command" };
 		for (let arg in command.args) {
 			if (data[arg] === undefined)
-				return { error: "Need more arguments", arg: arg };
+				return { error: "Need more arguments", arg };
 			if (!command.args[arg](data[arg]))
-				return { error: "Invalid arg", arg: arg };
+				return { error: "Invalid arg", arg };
 		}
-		let response = command.execute.call(this, connectionId, data);
-		if (response) ws.send(JSON.stringify(response));
+		return command.execute.call(this, connectionId, data);
 	}
 
 	/**
