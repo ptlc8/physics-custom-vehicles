@@ -7,9 +7,7 @@ export default {
 	args: { "name": isString },
 	execute: function(connectionId, args) {
 		if (args.name.length < 3)
-			return {
-				error: "name too short"
-			};
+			throw "name too short";
 		this.players[connectionId] = new Player(args.name);
 		return {
 			command: "logged",

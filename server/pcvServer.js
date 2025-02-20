@@ -37,15 +37,15 @@ export default class PcvServer {
 	 */
 	receiveMessage(connectionId, data) {
 		if (!data)
-			return { error: "Malformed message" };
+			throw "Malformed message";
 		let command = PcvServer.commands[data.command];
 		if (!command)
-			return { error: "Unknow command" };
+			throw "Unknow command";
 		for (let arg in command.args) {
 			if (data[arg] === undefined)
-				return { error: "Need more arguments", arg };
+				throw "Need more arguments: " + arg;
 			if (!command.args[arg](data[arg]))
-				return { error: "Invalid arg", arg };
+				throw "Invalid arg: " + arg;
 		}
 		return command.execute.call(this, connectionId, data);
 	}
@@ -103,3 +103,5 @@ fs.readdirSync(path.join(dirname, "commands"))
 	.forEach(file => {
 		PcvServer.commands[path.basename(file)] = require(path.join(dirname, 'commands', file));
 	});
+
+console.info("[pcv] " + Object.keys(PcvServer.commands).length + " commandes chargées")

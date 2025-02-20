@@ -7,7 +7,7 @@ export default {
 	execute: function(connectionId, args) {
 		let gameId = this.players[connectionId].game;
 		if (gameId === undefined)
-			return {error:"Not in game"};
+			throw "Not in game";
 		var event = this.games[gameId].disactivate(connectionId, args.index, args.tag);
 		this.broadcastGame(gameId, {command:"gameevent",event:event});
 	}
