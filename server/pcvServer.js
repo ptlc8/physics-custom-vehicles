@@ -37,7 +37,7 @@ export default class PcvServer {
 	receiveMessage(data) {
 		if (!data)
 			return { error: "Malformed message" };
-		let command = PcvServer.commands[args.command];
+		let command = PcvServer.commands[data.command];
 		if (!command)
 			return { error: "Unknow command" };
 		for (let arg in command.args) {

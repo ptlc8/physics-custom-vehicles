@@ -24,8 +24,7 @@ if (isDevelopment) {
 	app.use(viteServer.middlewares);
 } else {
 	console.log('[http] Mode production');
-	// Construction avec vite et distribution des fichiers
-	await Vite.build();
+	// Distribution des fichiers préalablement construits avec vite
 	app.use(Express.static('dist'));
 }
 

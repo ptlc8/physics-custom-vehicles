@@ -12,5 +12,8 @@ COPY server ./server
 COPY client ./client
 COPY *.js ./
 
+# Build client files
+RUN npx vite build
+
 # Start the server
 CMD ["node", "server"]
