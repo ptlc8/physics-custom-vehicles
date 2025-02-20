@@ -1,5 +1,5 @@
 import { isString } from "../type-checks.js";
-import Player from "../common/player.js";
+import Player from "../../common/player.js";
 
 
 // Renvoie l'inventaire du joueur

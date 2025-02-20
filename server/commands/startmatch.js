@@ -1,7 +1,7 @@
 import { isValidVehiclePattern } from "../type-checks.js";
-import Game from "../common/game.js";
-import WorldMap from "../common/map.js";
-import Gamemodes from "../common/gamemodes.js";
+import Game from "../../common/game.js";
+import WorldMap from "../../common/map.js";
+import Gamemodes from "../../common/gamemodes.js";
 
 
 // Recherche puis démarre une instance de match 1v1
