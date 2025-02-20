@@ -1,9 +1,9 @@
-// Renvoie le temps du serveur
+// Renvoie les véhicules du joueur
 export default {
 	args: {},
 	execute: function(connectionId, args) {
 		return {
-			time: Date.now()
+			vehicles: this.players[connectionId].vehicles
 		};
 	}
 };
