@@ -1,8 +1,9 @@
 services:
   server:
-    build: .
-    environment:
-      VITE_BASE_URL: /${BASE_URL:-pcv}
+    build:
+      context: .
+      args:
+        VITE_BASE_URL: /${BASE_URL:-pcv}
     ports:
       - 13029
     restart: always
