@@ -102,6 +102,7 @@ const require = createRequire(import.meta.url);
 fs.readdirSync(path.join(dirname, "commands"))
 	.forEach(file => {
 		PcvServer.commands[path.basename(file)] = require(path.join(dirname, 'commands', file));
+		console.debug("[pcv] Commande " + path.basename(file) + " chargée")
 	});
 
 console.info("[pcv] " + Object.keys(PcvServer.commands).length + " commandes chargées")
