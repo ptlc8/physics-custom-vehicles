@@ -1,4 +1,4 @@
-import { isNumber } from "./type-checks.js";
+import { isNumber } from "../type-checks.js";
 
 
 // Uniquement en jeu, désactive un controle du véhicule

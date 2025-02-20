@@ -1,4 +1,4 @@
-import { isPositiveInteger } from "./type-checks.js";
+import { isPositiveInteger } from "../type-checks.js";
 
 
 // Uniquement en jeu, active un controle du véhicule

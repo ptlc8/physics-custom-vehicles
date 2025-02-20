@@ -1,4 +1,4 @@
-import { isValidVehiclePattern } from "./type-checks.js";
+import { isValidVehiclePattern } from "../type-checks.js";
 import Game from "../common/game.js";
 import WorldMap from "../common/map.js";
 import Gamemodes from "../common/gamemodes.js";

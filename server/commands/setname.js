@@ -1,4 +1,4 @@
-import { isString } from "./type-checks.js";
+import { isString } from "../type-checks.js";
 import Player from "../common/player.js";
 
 
