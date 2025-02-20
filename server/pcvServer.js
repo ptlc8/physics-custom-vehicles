@@ -3,6 +3,11 @@ import Player from "../common/player.js";
 import WorldMap from "../common/map.js";
 import Gamemodes from "../common/gamemodes.js";
 
+import fs from "fs";
+import path from "path";
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'url';
+
 
 export default class PcvServer {
 
@@ -91,11 +96,6 @@ export default class PcvServer {
 
 }
 
-
-import fs from "fs";
-import path from "path";
-import { createRequire } from 'node:module';
-import { fileURLToPath } from 'url';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
