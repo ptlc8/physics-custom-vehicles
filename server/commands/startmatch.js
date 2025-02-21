@@ -11,10 +11,9 @@ export default {
 		let gamemode = Gamemodes.RUSH;
 		if (this.waitingPlayersId.length >= gamemode.players-1) {
 			let map = WorldMap.createMatchMap();
-			let vehiclesPatterns = [];
+			let vehiclesPatterns = [args.vehiclePattern];
 			let opponents = [];
 			let gameId = this.idIncrementer++;
-			vehiclesPatterns.push(args.vehiclePattern);
 			opponents.push(connectionId);
 			this.players[connectionId].game = gameId;
 			for (let i = 0; i < gamemode.players-1; i++) {
@@ -26,12 +25,12 @@ export default {
 			}
 			this.games[gameId] = new Game(map, gamemode, vehiclesPatterns, opponents);
 			this.games[gameId].start();
-			console.log("[pcv] Nouveau match ("+opponents.join(" vs ")+")");
+			console.log("[pcv] Nouveau match (" + opponents.join(" vs ") + ")");
 			this.broadcastGame(gameId, {
 				command: "start",
 				map: map,
 				gamemode: gamemode.name,
-				vehiclesPatterns: vehiclesPatterns,
+				vehiclesPatterns: vehiclesPatterns.map(p => p.serialize()),
 				opponents: opponents
 			});
 		} else {
@@ -41,7 +40,7 @@ export default {
 			console.log("[pcv] Joueur ("+connectionId+") en recherche de match");
 			return {
 				command: "wait",
-				vehiclePattern: args.vehiclePattern
+				vehiclePattern: player.vehiclePattern.serialize()
 			};
 		}
 	}

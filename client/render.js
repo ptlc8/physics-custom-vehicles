@@ -35,21 +35,21 @@ export function renderNightBackground(wCtx) {
 /**
  * Affiche l'éditeur de véhicule
  * @param {RenderContext} wCtx
- * @param {Array<Array<VehiclePart>>} vehiclePattern
+ * @param {VehiclePattern} vehiclePattern
  */
 export function renderVehicleEditor(wCtx, vehiclePattern) {
     wCtx.camera.setSize(10);
     wCtx.camera.setPos(0, -1);
-    for (let i = 0; i < vehiclePattern.length; i++)
-        for (let j = 0; j < vehiclePattern[i].length; j++) {
-            wCtx.drawRect("#D0D0D0", j * 1.2 - (.6 * vehiclePattern[i].length) + .6, (i - vehiclePattern.length + 1) * 1.2 - .6, 1, 1);
-            if (vehiclePattern[i][j]) {
-                let angle = (vehiclePattern[i][j].rotation || 0) * Math.PI / 2;
-                wCtx.drawImage(vehiclePattern[i][j].id + (vehiclePattern[i][j].color ?? ""), j * 1.2 - (.6 * vehiclePattern[i].length) + .6, (i - vehiclePattern.length + 1) * 1.2 - .6, 1, 1, angle);
-                if (vehiclePattern[i][j].contained != undefined)
-                    wCtx.drawImage(vehiclePattern[i][j].contained.id + (vehiclePattern[i][j].contained.color ?? ""), j * 1.2 - (.6 * vehiclePattern[i].length) + .6, (i - vehiclePattern.length + 1) * 1.2 - .6, .9, .9, angle);
-                if (vehiclePattern[i][j].rotationAttachable) {
-                    wCtx.drawImage("rotation-arrow", j * 1.2 - (.6 * vehiclePattern[i].length) + .6, (i - vehiclePattern.length + 1) * 1.2 - .6, 1, 1, ((vehiclePattern[i][j].rotation || 0) - 1) * Math.PI / 2);
+    for (let y = 0; y < vehiclePattern.getHeight(); y++)
+        for (let x = 0; x < vehiclePattern.getWidth(y); x++) {
+            wCtx.drawRect("#D0D0D0", x * 1.2 - (.6 * vehiclePattern.parts[y].length) + .6, (y - vehiclePattern.parts.length + 1) * 1.2 - .6, 1, 1);
+            if (vehiclePattern.get(x, y)) {
+                let angle = (vehiclePattern.get(x, y).rotation || 0) * Math.PI / 2;
+                wCtx.drawImage(vehiclePattern.get(x, y).id + (vehiclePattern.get(x, y).color ?? ""), x * 1.2 - (.6 * vehiclePattern.parts[y].length) + .6, (y - vehiclePattern.parts.length + 1) * 1.2 - .6, 1, 1, angle);
+                if (vehiclePattern.get(x, y).contained != undefined)
+                    wCtx.drawImage(vehiclePattern.get(x, y).contained.id + (vehiclePattern.get(x, y).contained.color ?? ""), x * 1.2 - (.6 * vehiclePattern.parts[y].length) + .6, (y - vehiclePattern.parts.length + 1) * 1.2 - .6, .9, .9, angle);
+                if (vehiclePattern.get(x, y).rotationAttachable) {
+                    wCtx.drawImage("rotation-arrow", x * 1.2 - (.6 * vehiclePattern.parts[y].length) + .6, (y - vehiclePattern.parts.length + 1) * 1.2 - .6, 1, 1, ((vehiclePattern.get(x, y).rotation || 0) - 1) * Math.PI / 2);
                 }
             }
         }

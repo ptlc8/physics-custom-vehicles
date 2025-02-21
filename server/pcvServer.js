@@ -25,7 +25,7 @@ export default class PcvServer {
 	/** @type {string} Version du serveur */
 	static version = "0.2.0";
 
-	/** @type {Object<string, { args: Object<string, function(any):boolean>, execute: function(this:PcvServer, number, Object<string, any>):string?}>} Commandes utilisables par un client */
+	/** @type {Object<string, { args: Object<string, function(any):any>, execute: function(this:PcvServer, number, Object<string, any>):string?}>} Commandes utilisables par un client */
 	static commands = {};
 
 	/**
@@ -46,13 +46,17 @@ export default class PcvServer {
 		let command = PcvServer.commands[data.command];
 		if (!command)
 			throw "Unknow command";
+		let argsValues = {};
 		for (let arg in command.args) {
 			if (data[arg] === undefined)
 				throw "Need more arguments: " + arg;
-			if (!command.args[arg](data[arg]))
-				throw "Invalid arg: " + arg;
+			try {
+				argsValues[arg] = command.args[arg](data[arg]);
+			} catch (error) {
+				throw "Invalid arg: " + arg + "\n" + error;
+			}
 		}
-		return command.execute.call(this, connectionId, data);
+		return command.execute.call(this, connectionId, argsValues);
 	}
 
 	/**
@@ -108,7 +112,7 @@ export default class PcvServer {
 
 	cancelWait(playerId) {
 		let waitIndex = this.waitingPlayersId.indexOf(playerId);
-		if (playerId >= 0)
+		if (waitIndex >= 0)
 			this.waitingPlayersId.splice(waitIndex, 1);
 	}
 

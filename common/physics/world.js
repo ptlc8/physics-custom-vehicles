@@ -8,7 +8,7 @@ import Vehicle from "./vehicle.js";
 class World {
 	/**
 	 * @param {WorldMap} map
-	 * @param {Array<Array<Array<Object>>>} vehiclesPatterns
+	 * @param {Array<VehiclePattern>} vehiclesPatterns
 	 */
 	constructor(map, vehiclesPatterns = []) {
 		// Vecteur gravité (y est orienté vers le bas)

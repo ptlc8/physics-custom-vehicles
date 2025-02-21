@@ -1,27 +1,26 @@
+import VehiclePattern from "../common/physics/vehicle-pattern.js";
+
+
 export function isString(value) {
-    return typeof value == "string";
+    if (typeof value != "string")
+		throw "Invalid string";
+	return value;
 }
 
 export function isNumber(value) {
-    return typeof value == "number";
+    if (typeof value != "number")
+		throw "Invalid number";
 }
 
 export function isPositiveInteger(value) {
-    return Number.isInteger(value) && value >= 0;
+	if (!Number.isInteger(value) || value < 0)
+		throw "Invalid positive integer";
+	return value;
 }
 
-export function isValidVehiclePattern(pattern, width=7, height=5) {
-	if (pattern.length > height) return false;
-	let havePlayer = false;
-	for (let line of pattern) {
-		if (line.length > width) return false;
-		for (let part of line) {
-			if (part == undefined) continue;
-			if (typeof part !== "object")
-				return false;
-			if (part.id=="player" || (part.param && part.param.id == "player"))
-				havePlayer = true;
-		}
-	}
-	return havePlayer;
+export function isValidVehiclePattern(value) {
+	let pattern = VehiclePattern.cast(value);
+	if (!pattern.isValid())
+		throw "Invalid vehicle pattern";
+	return pattern;
 }

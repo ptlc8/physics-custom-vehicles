@@ -1,26 +1,25 @@
 import Scene from "../engine/scene.js";
 import { renderVehicleEditor } from "../render.js";
+import VehiclePattern from "../../common/physics/vehicle-pattern.js";
 import VehiclePart from "../../common/physics/part.js";
 import { createPartById } from "../../common/physics/parts.js";
 
-
-const u = undefined; // tmp :)
 
 class BuildScene extends Scene {
 
     constructor() {
         super();
-        /** @type {Array<Array<VehiclePart>>} */
-        this.vehiclePattern = [[u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u], [u, u, u, u, u, u, u]];
-        /** @type {VehiclePart} */
-        this.placingItem = undefined;
+        /** @type {VehiclePattern} */
+        this.vehiclePattern = new VehiclePattern();
+        /** @type {VehiclePart?} */
+        this.placingItem = null;
     }
-    
+
     render(remote, wCtx, vCtx, renderRatio, cursor) {
         renderVehicleEditor(wCtx, this.vehiclePattern);
         // Barre d'inventaire
         if (remote.selfPlayer && remote.selfPlayer.inventory) {
-            let inventory = Object.entries(remote.selfPlayer.inventory).map(e => ({ id: e[0], amount: e[1].amount }));
+            let inventory = Object.entries(remote.selfPlayer.inventory).map(([id, item]) => ({ id, amount: item.amount }));
             for (let i = 0; i < inventory.length; i++) {
                 let x = i % 9 * 40 - 20 * Math.min(9, inventory.length);
                 let y = 80 - 40 * Math.floor(i / 9);
@@ -45,12 +44,12 @@ class BuildScene extends Scene {
         if (input == "use") {
             // Bouton start
             if (Math.sqrt(Math.pow(120 - cursor.viewportX, 2) + Math.pow(cursor.viewportY, 2)) < 10) {
-                remote.startSolo(reducePattern(this.vehiclePattern));
+                remote.startSolo(this.vehiclePattern);
                 return;
             }
             // Bouton duo
             if (Math.sqrt(Math.pow(cursor.viewportX - 120, 2) + Math.pow(cursor.viewportY + 30, 2)) < 10) {
-                remote.startMatch(reducePattern(this.vehiclePattern));
+                remote.startMatch(this.vehiclePattern);
                 return;
             }
             // Bouton spectate
@@ -61,90 +60,41 @@ class BuildScene extends Scene {
             // Barre d'inventaire
             let inventory = Object.entries(remote.selfPlayer.inventory).map(([id, item]) => ({ id, amount: item.amount }));
             let inventoryIndex = Math.floor(2.5 - cursor.viewportY / 40) * 9 + Math.floor((cursor.viewportX + 20 * Math.min(9, inventory.length)) / 40);
-            if (inventory[inventoryIndex] && this.placingItem == undefined && inventory[inventoryIndex].amount > 0) {
+            if (inventory[inventoryIndex] && !this.placingItem && inventory[inventoryIndex].amount > 0) {
                 this.placingItem = createPartById(inventory[inventoryIndex].id);
                 remote.selfPlayer.removeFromInventory(inventory[inventoryIndex].id);
                 return;
             }
-            // Édition du véhicule 
-            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= i && i < this.vehiclePattern.length) {
-                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= j && j < this.vehiclePattern[0].length && this.placingItem == undefined && this.vehiclePattern[i][j] != undefined) {
-                    this.placingItem = this.vehiclePattern[i][j].contained || this.vehiclePattern[i][j];
-                    if (this.vehiclePattern[i][j].contained) this.vehiclePattern[i][j].contained = undefined;
-                    else this.vehiclePattern[i][j] = undefined;
-                    return;
-                }
+            // Édition du véhicule
+            let y = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.getHeight());
+            let x = Math.floor((cursor.worldX + (.6 * this.vehiclePattern.getWidth()) - .6) / 1.2 + .5);
+            if (!this.placingItem) {
+                this.placingItem = this.vehiclePattern.delete(x, y);
+                return;
             }
         }
         if (input == "special") {
-            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= i && i < this.vehiclePattern.length) {
-                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= j && j < this.vehiclePattern[0].length/* && this.placingItem==undefined*/) {
-                    if (this.vehiclePattern[i][j] == undefined) return;
-                    if (this.vehiclePattern[i][j].rotate4) {
-                        this.vehiclePattern[i][j].rotation = ((this.vehiclePattern[i][j].rotation || 0) + 1) % 4;
-                    }
-                    if (this.vehiclePattern[i][j].rotate8) {
-                        this.vehiclePattern[i][j].rotation = ((this.vehiclePattern[i][j].rotation || 0) + .5) % 4;
-                    }
-                    if (this.vehiclePattern[i][j].colors)
-                        this.vehiclePattern[i][j].color = ((this.vehiclePattern[i][j].color || 0) + 1) % this.vehiclePattern[i][j].colors;
-                    return;
-                }
-            }
+            // Édition du véhicule
+            let y = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.getHeight());
+            let x = Math.floor((cursor.worldX + (.6 * this.vehiclePattern.getWidth()) - .6) / 1.2 + .5);
+            this.vehiclePattern.rotate(x, y);
+            return;
         }
     }
 
     onUnclick(remote, input, cursor) {
         if (input == "use") {
-            let i = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.length); // vehicle editor
-            if (0 <= i && i < this.vehiclePattern.length) {
-                let j = Math.floor((cursor.worldX + (.6 * this.vehiclePattern[0].length) - .6) / 1.2 + .5);
-                if (0 <= j && j < this.vehiclePattern[0].length) {
-                    if (this.vehiclePattern[i][j] != undefined && this.vehiclePattern[i][j].contain && this.placingItem != undefined && this.placingItem.containable) {
-                        if (this.vehiclePattern[i][j].contained != undefined)
-                            remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].contained.id);
-                        this.vehiclePattern[i][j].contained = this.placingItem;
-                        this.placingItem = undefined;
-                        return;
-                    }
-                    if (this.vehiclePattern[i][j] != undefined) {
-                        remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].id);
-                        if (this.vehiclePattern[i][j].contained != undefined)
-                            remote.selfPlayer.addToInventory(this.vehiclePattern[i][j].contained.id);
-                    }
-                    this.vehiclePattern[i][j] = this.placingItem;
-                    this.placingItem = undefined;
-                    return;
-                }
-            }
-            if (this.placingItem) {
-                remote.selfPlayer.addToInventory(this.placingItem.id, 1);
-                if (this.placingItem.contained != undefined)
-                    remote.selfPlayer.addToInventory(this.placingItem.contained.id, 1);
-                this.placingItem = undefined;
+            let y = Math.floor(cursor.worldY / 1.2 + this.vehiclePattern.getHeight()); // vehicle editor
+            let x = Math.floor((cursor.worldX + (.6 * this.vehiclePattern.getWidth()) - .6) / 1.2 + .5);
+            let previousItem = this.vehiclePattern.set(x, y, this.placingItem);
+            this.placingItem = null;
+            if (previousItem) {
+                remote.selfPlayer.addToInventory(previousItem.id, 1);
+                if (previousItem.contained)
+                    remote.selfPlayer.addToInventory(previousItem.contained.id, 1);
             }
         }
     }
-}
-
-/**
- * Reduce a vehicle pattern to be serializable in JSON
- * @param {Array<Array<VehiclePart>>} pattern 
- * @returns {Array<Array<Object>>}
- */
-function reducePattern(pattern) {
-    var reducedPattern = [];
-    for (let l of pattern) {
-        let line = [];
-        for (let p of l)
-            line.push(p ? { id: p.id, param: p.getParam() } : undefined);
-        reducedPattern.push(line);
-    }
-    return reducedPattern;
 }
 
 

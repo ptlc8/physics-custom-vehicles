@@ -8,21 +8,21 @@ import { allParts, createPartById } from "./parts.js";
 class Vehicle {
     /**
      * @param {Box2D.b2World} world monde
-     * @param {Array<Array<Object>>} reducedPattern
+     * @param {VehiclePattern} pattern
      * @param {number} y position x
      * @param {number} x position y
      */
-    constructor(world, reducedPattern, x = 0, y = 0) {
+    constructor(world, pattern, x = 0, y = 0) {
         this.parts = [];
         this.controls = [];
-        x -= reducedPattern[0].length / 2;
-        y -= reducedPattern.length;
+        x -= pattern.parts[0].length / 2;
+        y -= pattern.parts.length;
         // Assemblage du pattern avec toutes les infos
-        for (let i = 0; i < reducedPattern.length; i++) {
+        for (let i = 0; i < pattern.parts.length; i++) {
             this.parts[i] = [];
-            for (let j = 0; j < reducedPattern[i].length; j++) {
-                if (!reducedPattern[i][j]) continue;
-                this.parts[i][j] = createPartById(reducedPattern[i][j].id, reducedPattern[i][j].param);
+            for (let j = 0; j < pattern.parts[i].length; j++) {
+                if (!pattern.parts[i][j]) continue;
+                this.parts[i][j] = createPartById(pattern.parts[i][j].id, pattern.parts[i][j].getParam());
                 this.parts[i][j].createBody(world, x + j, y + i);
                 if (this.parts[i][j] instanceof allParts["player"] || this.parts[i][j].contained instanceof allParts["player"]) {
                     this.pos = this.parts[i][j].body.GetPosition();

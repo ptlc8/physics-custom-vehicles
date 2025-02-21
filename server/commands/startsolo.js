@@ -20,7 +20,7 @@ export default {
 			command: "start",
 			map: map,
 			gamemode: Gamemodes.SOLO.name,
-			vehiclesPatterns: vehiclesPatterns,
+			vehiclesPatterns: vehiclesPatterns.map(p => p.serialize()),
 			opponents: opponents
 		};
 	}

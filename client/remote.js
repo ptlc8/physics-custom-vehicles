@@ -2,6 +2,7 @@ import WorldMap from "../common/map";
 import Player from "../common/player";
 import Game from "../common/game";
 import Gamemodes from "../common/gamemodes";
+import VehiclePattern from "../common/physics/vehicle-pattern";
 
 
 /** @type {Object<string, number>} */
@@ -106,13 +107,15 @@ class Remote {
         } else if (command == "start") { // map, vehiclesPatterns, opponents, gamemode
             // Lorsqu'une instance de jeu démarre
             let map = WorldMap.cast(data.map);
-            this.game = new Game(map, Gamemodes.getByName(data.gamemode), data.vehiclesPatterns, data.opponents);
+            let vehiclesPatterns = data.vehiclesPatterns.map(p => VehiclePattern.cast(p));
+            this.game = new Game(map, Gamemodes.getByName(data.gamemode), vehiclesPatterns, data.opponents);
             this.state = State.PLAY;
             this.game.start();
         } else if (command == "spectate") { // map, vehiclesPatterns, opponents, events, tick
             // Lorsque l'on devient spectateur d'un jeu
             let map = WorldMap.cast(data.map);
-            this.game = new Game(map, Gamemodes.getByName(data.gamemode), data.vehiclesPatterns, data.opponents);
+            let vehiclesPatterns = data.vehiclesPatterns.map(p => VehiclePattern.cast(p));
+            this.game = new Game(map, Gamemodes.getByName(data.gamemode), vehiclesPatterns, data.opponents);
             this.game.events = data.events;
             this.game.world.tick = data.tick;
             this.state = State.SPECTATE;
@@ -123,14 +126,16 @@ class Remote {
             this.game.insertEvent(data.event.index, data.event.tick, data.event)
         } else if (command == "wait") {
             this.state = State.WAIT;
-            this.selfPlayer.vehiclePattern = data.vehiclePattern;
+            this.selfPlayer.vehiclePattern = VehiclePattern.cast(data.vehiclePattern);
         } else if (command == "build") {
             this.state = State.BUILD;
-            this.game.stop();
-            this.game = undefined;
-        } else if (command == "addspectator") {
+            if (this.game) {
+                this.game.stop();
+                this.game = undefined;
+            }
+        } else if (command == "addspectator") { // spectatorId
             this.game.addSpectator(data.spectatorId);
-        } else if (command == "removespectator") {
+        } else if (command == "removespectator") { // spectatorId
             this.game.removeSpectator(data.spectatorId);
         } else {
             return console.error("[ws] Unknow command : " + command);
@@ -172,18 +177,18 @@ class Remote {
 
     /**
      * Lance une partie en mode solo
-     * @param {Array<Array<Object>>} vehiclePattern 
+     * @param {VehiclePattern} vehiclePattern 
      */
     startSolo(vehiclePattern) {
-        this.send("startsolo", { vehiclePattern });
+        this.send("startsolo", { vehiclePattern: vehiclePattern.serialize() });
     }
 
     /**
      * Démarre une recherche d'adversaire
-     * @param {Array<Array<Object>>} vehiclePattern 
+     * @param {VehiclePattern} vehiclePattern 
      */
     startMatch(vehiclePattern) {
-        this.send("startmatch", { vehiclePattern });
+        this.send("startmatch", { vehiclePattern: vehiclePattern.serialize() });
     }
 
     /**
