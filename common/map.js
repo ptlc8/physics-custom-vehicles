@@ -8,7 +8,7 @@ function WorldMap(groundVertices=[], spawns=[], finishes=[]) {
 
 // static // caster un objet en WorldMap
 WorldMap.cast = function(obj) {
-	let map = new WorldMap(obj.groundVertices, obj.spawns);
+	let map = new WorldMap(obj.groundVertices, obj.spawns, obj.finishes);
 	return map;
 }
 
