@@ -21,16 +21,18 @@ class World {
 		this.tick = 0;
 
 		// Création du sol dans le monde
-		for (let i = 0; i < map.groundVertices.length - 1; i++) {
-			var bd_ground = new Box2D.b2BodyDef();
-			var body = this.world.CreateBody(bd_ground);
-			var groundShape = new Box2D.b2EdgeShape();
-			groundShape.Set(new Box2D.b2Vec2(map.groundVertices[i][0], map.groundVertices[i][1]), new Box2D.b2Vec2(map.groundVertices[i + 1][0], map.groundVertices[i + 1][1]));
-			var fd = new Box2D.b2FixtureDef();
-			fd.set_shape(groundShape);
-			fd.set_density(0.0);
-			fd.set_friction(3);
-			body.CreateFixture(fd);
+		for (let ground of map.grounds) {
+			for (let i = 0; i < ground.length - 1; i++) {
+				var bd_ground = new Box2D.b2BodyDef();
+				var body = this.world.CreateBody(bd_ground);
+				var groundShape = new Box2D.b2EdgeShape();
+				groundShape.Set(new Box2D.b2Vec2(ground[i][0], ground[i][1]), new Box2D.b2Vec2(ground[i + 1][0], ground[i + 1][1]));
+				var fd = new Box2D.b2FixtureDef();
+				fd.set_shape(groundShape);
+				fd.set_density(0.0);
+				fd.set_friction(3);
+				body.CreateFixture(fd);
+			}
 		}
 
 		// Création des véhicules

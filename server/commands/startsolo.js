@@ -1,6 +1,7 @@
 import { isValidVehiclePattern } from "../type-checks.js";
 import Game from "../../common/game.js";
 import WorldMap from "../../common/map.js";
+import { createSinusoidalGround } from "../../common/map.js";
 import Gamemodes from "../../common/gamemodes.js";
 
 
@@ -8,7 +9,7 @@ import Gamemodes from "../../common/gamemodes.js";
 export default {
 	args: { vehiclePattern: isValidVehiclePattern },
 	execute: function(connectionId, args) {
-		let map = new WorldMap(WorldMap.createSinusoidalGround(), [[0,0]]);
+		let map = WorldMap.createSoloMap();
 		let vehiclesPatterns = [args.vehiclePattern];
 		let opponents = [connectionId];
 		let gameId = this.idIncrementer++;

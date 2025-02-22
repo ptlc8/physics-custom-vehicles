@@ -27,6 +27,7 @@ class Scene {
                 this.onClick(remote, input, cursor);
             if (inputs[input].unclicked)
                 this.onUnclick(remote, input, cursor);
+            this.onValue(remote, input, inputs[input].value, cursor);
         }
     }
 
@@ -47,6 +48,17 @@ class Scene {
      * @param {Cursor} cursor
      */
     onUnclick(remote, input, cursor) { }
+
+    /**
+     * Quand une entrée a une valeur
+     * @abstract
+     * @param {Remote} remote
+     * @param {string} input
+     * @param {number} value
+     * @param {Cursor} cursor
+     */
+    onValue(remote, input, value, cursor) { }
+
 }
 
 

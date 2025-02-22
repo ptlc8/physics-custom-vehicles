@@ -43,6 +43,10 @@ export default class InputsManager {
             if (Math.abs(e.movementX) <= Math.abs(e.movementY))
                 this.values["Mouse" + (this.isGrabbing() > 0 ? "Grab" : "") + "MoveX"] += e.movementX / 50;
         });
+        htmlElement.addEventListener("wheel", e => {
+            this.values["MouseWheelX"] = e.deltaX / 100;
+            this.values["MouseWheelY"] = e.deltaY / 100;
+        });
         // listen touch
         htmlElement.addEventListener("touchstart", e => this.values["MouseButton" + e.changedTouches[0].identifier] = 1);
         htmlElement.addEventListener("touchend", e => this.values["MouseButton" + e.changedTouches[0].identifier] = 0);
@@ -125,6 +129,8 @@ export default class InputsManager {
         this.values["MouseMoveY"] = 0;
         this.values["MouseGrabMoveX"] = 0;
         this.values["MouseGrabMoveY"] = 0;
+        this.values["MouseWheelX"] = 0;
+        this.values["MouseWheelY"] = 0;
         return inputs;
     }
 

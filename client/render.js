@@ -8,7 +8,8 @@ import Box2D from "box2d.js";
 */
 export function renderMap(wCtx, map) {
     if (!map) return;
-    wCtx.drawLines("green", map.groundVertices.map(e => e[0]), map.groundVertices.map(e => e[1]), .1);
+    for (let vertices of map.grounds)
+        wCtx.drawLines("green", vertices.map(e => e[0]), vertices.map(e => e[1]), .1);
 }
 
 /**
@@ -64,13 +65,13 @@ export function renderVehicleEditor(wCtx, vehiclePattern) {
  * @param {Game} game
  * @param {number} playerIdToFollow id du joueur à suivre
  */
-export function renderGame(wCtx, game, playerIdToFollow, debug = false) {
+export function renderGame(wCtx, game, playerIdToFollow, camX = 0, camY = 0, debug = false) {
     if (game === undefined) return;
     // Centrage de la caméra sur le véhicule du joueur
     let opponentIndexToFollow = game.getOpponentIndex(playerIdToFollow);
     if (game.world.vehicles[opponentIndexToFollow] !== undefined) {
         let toFollow = game.world.vehicles[opponentIndexToFollow].pos;
-        wCtx.camera.setPos(toFollow ? toFollow.get_x() : 0, toFollow ? toFollow.get_y() : 0);
+        wCtx.camera.setPos(toFollow ? toFollow.get_x() + camX : camX, toFollow ? toFollow.get_y() + camY : camY);
     }
     // Affichage des arrivées
     for (let finish of game.map.finishes) {

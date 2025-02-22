@@ -10,11 +10,14 @@ class SpectateScene extends Scene {
         this.homeButton = new Button("home", -160, -85, 20);
         this.previousButton = new Button("previous", -160, 85, 20);
         this.nextButton = new Button("next", 160, 85, 20);
+        this.cameraX = 0;
+        this.cameraY = 0;
+        this.cameraSize = 20;
     }
 
     render(remote, wCtx, vCtx, renderRatio, cursor) {
-        wCtx.camera.setSize(20);
-        renderGame(wCtx, remote.game, remote.spectatedPlayerId);
+        wCtx.camera.setSize(this.cameraSize);
+        renderGame(wCtx, remote.game, remote.spectatedPlayerId, this.cameraX, this.cameraY);
         // Boutons
         this.homeButton.draw(vCtx);
         if (remote.game.opponents.length > 1) {
@@ -43,6 +46,18 @@ class SpectateScene extends Scene {
             remote.spectateNext();
         }
     }
+
+    onValue(remote, input, value) {
+        if (!value)
+            return;
+        if (input == "cameraX")
+            this.cameraX += value;
+        if (input == "cameraY")
+            this.cameraY += value;
+        if (input == "cameraSize")
+            this.cameraSize = Math.min(80, Math.max(4, Math.exp(Math.log(this.cameraSize) + value / 10)));
+    }
+
 }
 
 

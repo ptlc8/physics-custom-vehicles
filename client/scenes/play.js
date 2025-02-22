@@ -10,13 +10,16 @@ class PlayScene extends Scene {
 
     constructor() {
         super();
-        this.debug = false;
         this.leaveButton = new Button("home", -160, -85, 20);
+        this.debug = false;
+        this.cameraX = 0;
+        this.cameraY = 0;
+        this.cameraSize = 20;
     }
     
     render(remote, wCtx, vCtx, renderRatio, cursor) {
-        wCtx.camera.setSize(20);
-        renderGame(wCtx, remote.game, remote.selfPlayer.id, this.debug);
+        wCtx.camera.setSize(this.cameraSize);
+        renderGame(wCtx, remote.game, remote.selfPlayer.id, this.cameraX, this.cameraY, this.debug);
         renderGameControls(vCtx, remote.game, remote.selfPlayer.id, controlKeys);
         this.leaveButton.draw(vCtx);
     }
@@ -60,6 +63,17 @@ class PlayScene extends Scene {
     onUnclick(remote, input, cursor) {
         if (input == "debug")
             this.debug = false;
+    }
+
+    onValue(remote, input, value) {
+        if (!value)
+            return;
+        if (input == "cameraX")
+            this.cameraX += value;
+        if (input == "cameraY")
+            this.cameraY += value;
+        if (input == "cameraSize")
+            this.cameraSize = Math.min(80, Math.max(4, Math.exp(Math.log(this.cameraSize) + value / 10)));
     }
 
 }

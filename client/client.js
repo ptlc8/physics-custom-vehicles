@@ -39,7 +39,15 @@ var inputsMapping = [
 	["KeyI", "control5"],
 	["KeyO", "control6"],
 	["KeyP", "control7"],
-	["ShiftLeft", "debug"]
+	["ShiftLeft", "debug"],
+	["-MouseGrabMoveX", "+cameraX"],
+	["+MouseGrabMoveX", "-cameraX"],
+	["-MouseGrabMoveY", "+cameraY"],
+	["+MouseGrabMoveY", "-cameraY"],
+	["MouseWheelY", "cameraSize"],
+	["Gamepad0Axe2", "cameraX"],
+	["Gamepad0Axe3", "cameraY"],
+	["Gamepad0Axe4", "cameraSize"]
 ]
 
 const canvas = document.getElementById("aff");
