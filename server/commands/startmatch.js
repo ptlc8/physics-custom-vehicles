@@ -23,6 +23,8 @@ export default {
 				opponents.push(playerId);
 				player.game = gameId;
 			}
+			for (let i = 1; i < vehiclesPatterns.length; i += 2)
+				vehiclesPatterns[i].flip();
 			this.games[gameId] = new Game(map, gamemode, vehiclesPatterns, opponents);
 			this.games[gameId].start();
 			console.log("[pcv] Nouveau match (" + opponents.join(" vs ") + ")");

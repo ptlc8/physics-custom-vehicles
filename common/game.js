@@ -9,8 +9,6 @@ function Game(map, gamemode, vehiclesPatterns = [], opponents = []) {
 	this.gamemode = gamemode;
 	// Patterns des véhicules de la partie
 	this.vehiclesPatterns = vehiclesPatterns;
-	for (let i = 0; i < this.vehiclesPatterns.length; i += 2)
-		this.vehiclesPatterns[i].flip();
 	// Liste des identifiants des opposants
 	this.opponents = opponents;
 	// Liste des identifiants des spectateurs
