@@ -61,8 +61,8 @@ class World {
 			}
 		}
 		this.world.Step(1 / 30, 2, 2);
-		for (let vehicle of this.vehicles)
-			vehicle.update(this);
+		for (let i = 0; i < this.vehicles.length; i++)
+			this.vehicles[i].update(this, i % 2 == 1);
 		this.tick++;
 	}
 	/**

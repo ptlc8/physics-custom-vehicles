@@ -95,10 +95,10 @@ class Vehicle {
      * Met à jour le véhicule
      * @param {World} world
      */
-    update(world) {
+    update(world, backward = false) {
         for (let line of this.parts) for (let part of line) {
             if (part == undefined) continue;
-            part.update(world);
+            part.update(world, backward);
         }
     }
 
@@ -160,7 +160,6 @@ function weldJoinBodies(world, bodyA, bodyB, originA, originB, angle) {
     jd.set_dampingRatio(0.5);
     jd.set_referenceAngle(angle);
     var joint = world.CreateJoint(jd);
-    Box2D.destroy(jd);
     return Box2D.castObject(joint, Box2D.b2WeldJoint);
 }
 
@@ -177,20 +176,15 @@ function weldJoinBodies(world, bodyA, bodyB, originA, originB, angle) {
  */
 function revoluteJoinBodies(world, bodyA, bodyB, originA, originB, angle = 0, motor = false) {
     var jd = new Box2D.b2RevoluteJointDef();
-    //jd.Initialize(bodyA, bodyB, bodyA.GetPosition());
     jd.set_bodyA(bodyA);
     jd.set_bodyB(bodyB);
     jd.set_localAnchorA(new Box2D.b2Vec2(...originA));
     jd.set_localAnchorB(new Box2D.b2Vec2(...originB));
     //jd.set_collideConnected(true);
-    jd.set_motorSpeed(0);
     jd.set_enableMotor(motor);
-    //jd.set_maxMotorTorque(motor?20.0:10.0);
-    //jd.set_frequencyHz(4.0);
-    //jd.set_dampingRatio(0.7);
+    jd.set_maxMotorTorque(10);
     jd.set_referenceAngle(angle);
     var joint = world.CreateJoint(jd);
-    Box2D.destroy(jd);
     return Box2D.castObject(joint, Box2D.b2RevoluteJoint);
 }
 
@@ -213,7 +207,6 @@ function ropeJoinBodies(world, bodyA, bodyB, originA, originB, length) {
     jd.set_maxLength(length);
     jd.set_collideConnected(true);
     var joint = world.CreateJoint(jd);
-    Box2D.destroy(jd);
     return Box2D.castObject(joint, Box2D.b2RopeJoint);
 }
 
