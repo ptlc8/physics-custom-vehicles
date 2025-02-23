@@ -66,17 +66,18 @@ export default class PcvServer {
 	disconnect(connectionId) {
 		this.cancelWait(connectionId);
 		let player = this.players[connectionId];
-		if (player.game) {
-			let game = this.games[player.game];
-			if (game.removeSpectator(connectionId)) {
-				this.broadcastGame(player.game, {
-					command: "removespectator",
-					spectatorId: connectionId
-				});
+		if (player) {
+			if (player.game) {
+				let game = this.games[player.game];
+				if (game.removeSpectator(connectionId)) {
+					this.broadcastGame(player.game, {
+						command: "removespectator",
+						spectatorId: connectionId
+					});
+				}
 			}
-		}
-		if (player)
 			delete this.players[connectionId];
+		}
 	}
 
 	/**
@@ -103,9 +104,11 @@ export default class PcvServer {
 		if (!data) return;
 		let game = this.games[gameId];
 		if (game === undefined) return;
-		for (let connectionId of game.opponents)
-			if (this.players[connectionId].game == gameId)
+		for (let connectionId of game.opponents) {
+			let player = this.players[connectionId];
+			if (player && player.game == gameId)
 				this.send(connectionId, data);
+		}
 		for (let connectionId of game.spectators)
 			this.send(connectionId, data);
 	}
