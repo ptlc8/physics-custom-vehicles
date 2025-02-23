@@ -17,6 +17,8 @@ function Game(map, gamemode, vehiclesPatterns = [], opponents = []) {
 	this.world = new World(map, vehiclesPatterns);
 	// Liste des évents qui se sont déroulés (activation, désactivation...) par ordre chronologique
 	this.events = [];
+	// Dernier son joué
+	this.nextSoundToPlay = 0;
 }
 
 // démarre le monde
@@ -126,4 +128,12 @@ Game.prototype.removeSpectator = function(playerId) {
 		return false;
 	this.spectators.splice(spectatorIndex, 1);
 	return true;
+}
+
+Game.prototype.getSoundsToPlay = function() {
+	let sounds = [];
+	for (let i = this.nextSoundToPlay; i < this.world.sounds.length; i++) {
+		sounds.push(this.world.sounds[i].name);
+		this.nextSoundToPlay++;
+	}
 }

@@ -11,10 +11,10 @@ export default class PopCorn extends VehiclePart {
         this.activableonce = true;
         this.containable = true;
     }
-    update(world) {
-        if (!this.activated) return;
-        for (let i = this.joints.length - 1; i >= 0; i--) world.world.DestroyJoint(this.joints.pop());
-        // delete part
+    activate(world) {
+        for (let i = this.joints.length - 1; i >= 0; i--)
+            world.world.DestroyJoint(this.joints.pop());
+        // TODO: delete part
         world.explode(this.body.GetPosition(), 10, 64);
         this.activated = false;
     }

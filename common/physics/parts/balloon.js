@@ -2,7 +2,7 @@ import Shape from "../shape.js";
 import VehiclePart from "../part.js";
 
 
-export default class Balloon extends VehiclePart { // -350g
+export default class Balloon extends VehiclePart {
     /**
      * @param {number} color 
      */

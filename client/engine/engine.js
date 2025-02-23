@@ -2,6 +2,7 @@ import RenderContext from "./rendercontext.js";
 import Camera from "./camera.js";
 import Cursor from "./cursor.js";
 import InputsManager from "./inputs.js";
+import { getAudio } from "./sounds.js";
 
 
 /**
@@ -94,6 +95,28 @@ class Engine {
     setMouseCursor(cssCursor) {
         this.cvs.style.cursor = cssCursor;
     }
+
+    /**
+     * Joue un son
+     * @param {string} name
+     */
+    playSound(name) {
+        let audio = getAudio(name);
+        if (audio) {
+            audio.currentTime = 0;
+            audio.play();
+        }
+    }
+
+    /**
+     * Arrête un son
+     * @param {string} name
+     */
+    stopSound(name) {
+        let audio = getAudio(name);
+        if (audio) audio.pause();
+    }
+
 }
 
 

@@ -5,7 +5,7 @@ import BuildScene from "./scenes/build.js";
 import WaitScene from "./scenes/wait.js";
 import PlayScene from "./scenes/play.js";
 import SpectateScene from "./scenes/spectate.js";
-import { renderMap, renderBackground, renderCursor } from "./render.js";
+import { renderBackground, renderCursor } from "./render.js";
 
 
 var scenes = {
@@ -66,6 +66,10 @@ engine.run();
  */
 function update(inputs, cursor, tps) {
 	scenes[remote.state].onInputs(remote, inputs, cursor);
+    // Lecture des sons
+	if (remote.game)
+		for (let sound of remote.game.getSoundsToPlay())
+			engine.playSound(sound);
 }
 
 /**
@@ -77,8 +81,6 @@ function update(inputs, cursor, tps) {
 function render(worldContext, viewportContext, renderRatio, cursor) {
 	worldContext.clear();
 	renderBackground(worldContext);
-	if (remote.game)
-		renderMap(worldContext, remote.game.map);
 	scenes[remote.state].render(remote, worldContext, viewportContext, renderRatio, cursor);
 	renderCursor(viewportContext, cursor);
 }

@@ -11,14 +11,16 @@ class World {
 	 * @param {Array<VehiclePattern>} vehiclesPatterns
 	 */
 	constructor(map, vehiclesPatterns = []) {
-		// Vecteur gravité (y est orienté vers le bas)
+		/** @type {Box2D.b2Vec2} */
 		var gravity = new Box2D.b2Vec2(0.0, 10.0);
-		// Création du monde Box2D
+		/** @type {Box2D.b2World} */
 		this.world = new Box2D.b2World(gravity);
-		// Liste des joueurs par identifiant
+		/** @type {Vehicle[]} */
 		this.vehicles = [];
-		// temps actuel du monde en 1/30 secondes
+		/** @type {number} Temps actuel du monde en 1/30 secondes */
 		this.tick = 0;
+		/** @type {{ name: string, tick: number }[]} */
+		this.sounds = [];
 
 		// Création du sol dans le monde
 		for (let ground of map.grounds) {
@@ -43,17 +45,17 @@ class World {
 	
 	/**
 	 * Avance le monde de 1/30 secondes, 1 tick
-	 * @param {Array<WorldEvent>} events 
+	 * @param {Array<WorldEvent>} events
 	 */
 	update(events) {
 		for (let event of events) {
 			if (event.tick == this.tick) {
 				switch (event.name) {
 					case "activate":
-						this.vehicles[event.opponentIndex].activate(event.controlIndex);
+						this.vehicles[event.opponentIndex].activate(this, event.controlIndex, event.opponentIndex % 2 == 1);
 						break;
 					case "disactivate":
-						this.vehicles[event.opponentIndex].disactivate(event.controlIndex);
+						this.vehicles[event.opponentIndex].disactivate(this, event.controlIndex, event.opponentIndex % 2 == 1);
 						break;
 					default:
 						console.groupCollapsed("[pcv] Unknow event");
@@ -67,19 +69,21 @@ class World {
 			this.vehicles[i].update(this, i % 2 == 1);
 		this.tick++;
 	}
+
 	/**
 	 * Détruit le monde
 	 */
 	destroy() {
 		Box2D.destroy(this.world);
 	}
+
 	/**
 	 * Provoque une explosion à un certain point (center) du monde
 	 * (raycast method)
-	 * @param {Box2D.b2Vec2} center 
-	 * @param {number} blastRadius 
-	 * @param {number} blastPower 
-	 * @param {number} numRays 
+	 * @param {Box2D.b2Vec2} center
+	 * @param {number} blastRadius
+	 * @param {number} blastPower
+	 * @param {number} numRays
 	 */
 	explode(center, blastRadius, blastPower, numRays = 32) {
 		for (let i = 0; i < numRays; i++) {
@@ -96,6 +100,14 @@ class World {
 			this.world.RayCast(myQueryCallback, center, rayEnd);
 		}
 		//Box2D.destroy(center);
+	}
+
+	/**
+	 * Ajoute un son à jouer
+	 * @param {string} name
+	 */
+	playSound(name) {
+		this.sounds.push({ name, tick: this.tick });
 	}
 }
 

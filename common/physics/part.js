@@ -70,6 +70,18 @@ class VehiclePart {
     update(world) { }
 
     /**
+     * Active la pièce du véhicule
+     * @param {World} world
+     */
+    activate(world) { }
+
+    /**
+     * Désactive la pièce du véhicule
+     * @param {World} world
+     */
+    disactivate(world) { }
+
+    /**
      * Retourne l'identifiant du contrôle
      * @returns {string}
      */

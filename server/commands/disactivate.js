@@ -1,9 +1,9 @@
-import { isPositiveInteger } from "../type-checks.js";
+import { isPositiveInteger, isString } from "../type-checks.js";
 
 
 // Uniquement en jeu, désactive un controle du véhicule
 export default {
-	args: { index: isPositiveInteger },
+	args: { index: isPositiveInteger, tag: isString },
 	execute: function(connectionId, args) {
 		let gameId = this.players[connectionId].game;
 		if (gameId === undefined)

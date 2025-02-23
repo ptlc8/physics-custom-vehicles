@@ -16,12 +16,16 @@ export default class Wheel extends VehiclePart { // donut
         this.activable = true;
         this.needjointtoactivable = true;
     }
-    update(world, backward = false) {
-        let speed = backward ? 100 : -100;
-        for (let joint of this.joints)
-            joint.SetMotorSpeed(this.activated ? speed : 0);
-    }
     getParam() {
         return this.rotation;
+    }
+    activate(world, backward = false) {
+        let speed = backward ? 100 : -100;
+        for (let joint of this.joints)
+            joint.SetMotorSpeed(speed);
+    }
+    disactivate(world) {
+        for (let joint of this.joints)
+            joint.SetMotorSpeed(0);
     }
 }

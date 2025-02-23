@@ -94,6 +94,7 @@ class Vehicle {
     /**
      * Met à jour le véhicule
      * @param {World} world
+     * @param {boolean} backward
      */
     update(world, backward = false) {
         for (let line of this.parts) for (let part of line) {
@@ -104,20 +105,28 @@ class Vehicle {
 
     /**
      * Active un contrôle du véhicule
+     * @param {Box2D.b2World} world
      * @param {number} controlIndex
+     * @param {boolean} backward
      */
-    activate(controlIndex) {
-        for (let part of this.controls[controlIndex].parts)
+    activate(world, controlIndex, backward = false) {
+        for (let part of this.controls[controlIndex].parts) {
             part.activated = true;
+            part.activate(world, backward);
+        }
     }
 
     /**
      * Désactive un contrôle du véhicule
+     * @param {Box2D.b2World} world
      * @param {number} controlIndex
+     * @param {boolean} backward
      */
-    disactivate(controlIndex) {
-        for (let part of this.controls[controlIndex].parts)
+    disactivate(world, controlIndex, backward = false) {
+        for (let part of this.controls[controlIndex].parts) {
             part.activated = false;
+            part.disactivate(world, backward);
+        }
     }
 
 }
