@@ -14,8 +14,12 @@ export default class Balloon extends VehiclePart {
         this.attachColor = "black";
         this.colors = 6;
         this.color = color;
+        this.activable = true;
     }
     getParam() {
         return this.color;
+    }
+    activate(world) {
+        world.playSound("balloon-pop1");
     }
 }
