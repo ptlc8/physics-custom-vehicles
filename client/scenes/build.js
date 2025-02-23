@@ -1,4 +1,5 @@
 import Scene from "../engine/scene.js";
+import Button from "../engine/button.js";
 import { renderVehicleEditor } from "../render.js";
 import VehiclePattern from "../../common/physics/vehicle-pattern.js";
 import VehiclePart from "../../common/physics/part.js";
@@ -10,9 +11,12 @@ class BuildScene extends Scene {
     constructor() {
         super();
         /** @type {VehiclePattern} */
-        this.vehiclePattern = new VehiclePattern();
+        this.vehiclePattern = this.loadVehiclePattern();
         /** @type {VehiclePart?} */
         this.placingItem = null;
+        this.soloButton = new Button("solo", 120, 0, 20);
+        this.duoButton = new Button("duo", 120, -30, 20);
+        this.spectateButton = new Button("spectate", -120, -30, 20);
     }
 
     render(remote, wCtx, vCtx, renderRatio, cursor) {
@@ -35,25 +39,27 @@ class BuildScene extends Scene {
             if (this.placingItem.contained) vCtx.drawImage(this.placingItem.contained.id, cursor.viewportX, cursor.viewportY, 18, 18);
         }
         // Boutons start
-        vCtx.drawImage("solo", 120, 0, 20, 20);
-        vCtx.drawImage("duo", 120, -30, 20, 20);
-        vCtx.drawImage("spectate", -120, -30, 20, 20);
+        this.soloButton.draw(vCtx);
+        this.duoButton.draw(vCtx);
+        this.spectateButton.draw(vCtx);
     }
 
     onClick(remote, input, cursor) {
         if (input == "use") {
-            // Bouton start
-            if (Math.sqrt(Math.pow(120 - cursor.viewportX, 2) + Math.pow(cursor.viewportY, 2)) < 10) {
+            // Bouton solo
+            if (this.soloButton.isHover(cursor)) {
                 remote.startSolo(this.vehiclePattern);
+                this.saveVehiclePattern();
                 return;
             }
             // Bouton duo
-            if (Math.sqrt(Math.pow(cursor.viewportX - 120, 2) + Math.pow(cursor.viewportY + 30, 2)) < 10) {
+            if (this.duoButton.isHover(cursor)) {
                 remote.startMatch(this.vehiclePattern);
+                this.saveVehiclePattern();
                 return;
             }
             // Bouton spectate
-            if (Math.sqrt(Math.pow(cursor.viewportX + 120, 2) + Math.pow(cursor.viewportY + 30, 2)) < 10) {
+            if (this.spectateButton.isHover(cursor)) {
                 remote.spectate(parseInt(prompt("Quel est l'identifiant du joueur à regarder ?")));
                 return;
             }
@@ -95,6 +101,22 @@ class BuildScene extends Scene {
             }
         }
     }
+
+    saveVehiclePattern() {
+        localStorage.setItem("pcv.vehiclePattern", JSON.stringify(this.vehiclePattern.serialize()));
+    }
+
+    loadVehiclePattern() {
+        try {
+            let pattern = localStorage.getItem("pcv.vehiclePattern");
+            if (pattern)
+                return VehiclePattern.cast(JSON.parse(pattern));
+        } catch (e) {
+            console.error(e);
+        }
+        return new VehiclePattern();
+    }
+
 }
 
 

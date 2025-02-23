@@ -1,5 +1,6 @@
 import Engine from "./engine/engine.js";
 import { default as Remote, State } from "./remote.js";
+import LoadScene from "./scenes/load.js";
 import BuildScene from "./scenes/build.js";
 import WaitScene from "./scenes/wait.js";
 import PlayScene from "./scenes/play.js";
@@ -8,6 +9,7 @@ import { renderMap, renderBackground, renderCursor } from "./render.js";
 
 
 var scenes = {
+	[State.LOAD]: new LoadScene(),
 	[State.BUILD]: new BuildScene(),
 	[State.WAIT]: new WaitScene(),
 	[State.PLAY]: new PlayScene(),

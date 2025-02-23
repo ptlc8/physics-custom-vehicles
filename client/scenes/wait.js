@@ -13,7 +13,6 @@ class WaitScene extends Scene {
     render(remote, wCtx, vCtx, renderRatio, cursor) {
         renderVehicleEditor(wCtx, remote.selfPlayer.vehiclePattern);
         this.leaveButton.draw(vCtx);
-        vCtx.drawImage("quit", 120, 0, 20, 20);
         let loadDots = new Array(3).fill(" ");
         loadDots[parseInt(Date.now() / 400) % loadDots.length] = ".";
         loadDots = loadDots.join("");

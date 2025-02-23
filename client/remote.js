@@ -6,7 +6,7 @@ import VehiclePattern from "../common/physics/vehicle-pattern";
 
 
 /** @type {Object<string, number>} */
-const State = Object.assign({}, ...["BUILD", "WAIT", "PLAY", "SPECTATE"].map((s, i) => ({ [s]: i })));
+const State = Object.assign({}, ...["LOAD", "BUILD", "WAIT", "PLAY", "SPECTATE"].map((s, i) => ({ [s]: i })));
 
 class Remote {
 
@@ -16,7 +16,7 @@ class Remote {
     constructor(url) {
         /** @type {number} */
         this.selfPlayer = undefined;
-        this.state = State.BUILD;
+        this.state = State.LOAD;
         this.game = undefined;
         /** @type {number} */
         this.spectatedPlayerId = undefined;
@@ -29,8 +29,10 @@ class Remote {
         this.ws.onclose = this.onClose.bind(this);
     }
 
+    /** @typedef {"open"|"close"|"error"|"command"} RemoteEvent */
+
     /**
-     * @param {string} event
+     * @param {RemoteEvent} event
      * @param {function(Remote, Object...):void} listener
      */
     addEventListener(event, listener) {
@@ -38,7 +40,7 @@ class Remote {
     }
 
     /**
-     * @param {"open"|"close"|"error"|"command"} event
+     * @param {RemoteEvent} event
      * @param {function(Remote, Object...):void} listener
      */
     removeEventListener(event, listener) {
@@ -46,7 +48,7 @@ class Remote {
     }
 
     /**
-     * @param {string} event
+     * @param {RemoteEvent} event
      * @param {...Object} data 
      */
     dispathEvent(event, ...data) {
@@ -104,6 +106,7 @@ class Remote {
             // Lorsque le joueur est enregistré
             this.selfPlayer = Player.cast(data.self);
             this.selfPlayer.id = data.selfId;
+            this.state = State.BUILD;
         } else if (command == "start") { // map, vehiclesPatterns, opponents, gamemode
             // Lorsqu'une instance de jeu démarre
             let map = WorldMap.cast(data.map);
