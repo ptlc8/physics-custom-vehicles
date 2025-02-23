@@ -68,13 +68,18 @@ class RenderContext {
         if (close) this.ctx.lineTo(this.worldToCamX(xs[0]), this.worldToCamY(ys[0]));
         this.ctx.stroke();
     }
-    drawCircle(color, x, y, r) {
+    drawCircle(color, x, y, r, fill = true, thickness = 1) {
+        this.ctx.strokeStyle = color;
         this.ctx.fillStyle = color;
+        this.ctx.lineWidth = this.worldToCamSize(thickness);
         x = this.worldToCamX(x);
         y = this.worldToCamY(y);
         r = this.worldToCamSize(r);
         this.ctx.translate(x, y);
+        this.ctx.beginPath();
         this.ctx.ellipse(0, 0, r, r, 0, 0, Math.PI * 2);
+        if (fill) this.ctx.fill();
+        else this.ctx.stroke();
         this.ctx.translate(-x, -y);
     }
     drawImage(imageName, x, y, w, h, angle = 0, originX = 0, originY = 0) {

@@ -38,7 +38,8 @@ var inputsMapping = [
 	["KeyU", "control4"],
 	["KeyI", "control5"],
 	["KeyO", "control6"],
-	["KeyP", "control7"]
+	["KeyP", "control7"],
+	["ShiftLeft", "debug"]
 ]
 
 const canvas = document.getElementById("aff");

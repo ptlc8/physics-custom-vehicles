@@ -10,17 +10,20 @@ class PlayScene extends Scene {
 
     constructor() {
         super();
+        this.debug = false;
         this.leaveButton = new Button("home", -160, -85, 20);
     }
     
     render(remote, wCtx, vCtx, renderRatio, cursor) {
         wCtx.camera.setSize(20);
-        renderGame(wCtx, remote.game, remote.selfPlayer.id);
+        renderGame(wCtx, remote.game, remote.selfPlayer.id, this.debug);
         renderGameControls(vCtx, remote.game, remote.selfPlayer.id, controlKeys);
         this.leaveButton.draw(vCtx);
     }
 
     onClick(remote, input, cursor) {
+        if (input == "debug")
+            this.debug = true;
         if (remote.game == undefined) return;
         if (input == "use") {
              // controls bar
@@ -53,6 +56,12 @@ class PlayScene extends Scene {
             }
         }
     }
+
+    onUnclick(remote, input, cursor) {
+        if (input == "debug")
+            this.debug = false;
+    }
+
 }
 
 

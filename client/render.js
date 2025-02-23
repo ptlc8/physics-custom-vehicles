@@ -1,3 +1,6 @@
+import Box2D from "box2d.js";
+
+
 /**
  * Affiche la carte
  * @param {RenderContext} wCtx
@@ -61,7 +64,7 @@ export function renderVehicleEditor(wCtx, vehiclePattern) {
  * @param {Game} game
  * @param {number} playerIdToFollow id du joueur à suivre
  */
-export function renderGame(wCtx, game, playerIdToFollow) {
+export function renderGame(wCtx, game, playerIdToFollow, debug = false) {
     if (game === undefined) return;
     // Centrage de la caméra sur le véhicule du joueur
     let opponentIndexToFollow = game.getOpponentIndex(playerIdToFollow);
@@ -75,7 +78,7 @@ export function renderGame(wCtx, game, playerIdToFollow) {
     }
     // Véhicules
     for (const [index, vehicle] of Object.entries(game.world.vehicles)) {
-        renderVehicle(wCtx, vehicle, "Joueur " + game.opponents[index]);
+        renderVehicle(wCtx, vehicle, "Joueur " + game.opponents[index], debug);
     }
 }
 
@@ -85,7 +88,7 @@ export function renderGame(wCtx, game, playerIdToFollow) {
  * @param {Vehicle} vehicle
  * @param {string} name
  */
-export function renderVehicle(wCtx, vehicle, name="") {
+export function renderVehicle(wCtx, vehicle, name = "", debug = false) {
     for (let line of vehicle.parts) for (let part of line) {
         if (part == undefined) continue;
         if (part.attachColor)
@@ -97,6 +100,48 @@ export function renderVehicle(wCtx, vehicle, name="") {
         if (part.id == "player" || (part.contained && part.contained.id == "player"))
             wCtx.drawText(name, part.body.GetPosition().get_x(), part.body.GetPosition().get_y() - 1, .5, "white", 0, "black", "center");
     }
+    if (debug)
+        renderDebugVehicle(wCtx, vehicle);
+}
+
+/**
+ * Affiche un véhicule en mode debug
+ * @param {RenderContext} wCtx 
+ * @param {Vehicle} vehicle
+ */
+function renderDebugVehicle(wCtx, vehicle) {
+    for (let line of vehicle.parts) for (let part of line) {
+        if (part == undefined) continue;
+        renderDebugBody(wCtx, part.body);
+        for (let joint of part.joints) {
+            wCtx.drawLine("#ffff00", joint.GetBodyA().GetPosition().get_x(), joint.GetBodyA().GetPosition().get_y(), joint.GetAnchorA().get_x(), joint.GetAnchorA().get_y(), .05);
+            wCtx.drawLine("#ffff00", joint.GetBodyB().GetPosition().get_x(), joint.GetBodyB().GetPosition().get_y(), joint.GetAnchorB().get_x(), joint.GetAnchorB().get_y(), .05);
+            wCtx.drawCircle("#ff0000", joint.GetAnchorA().get_x(), joint.GetAnchorA().get_y(), .1);
+            wCtx.drawCircle("#ff0000", joint.GetAnchorB().get_x(), joint.GetAnchorB().get_y(), .1);
+            wCtx.drawLine("#ff0000", joint.GetAnchorA().get_x(), joint.GetAnchorA().get_y(), joint.GetAnchorB().get_x(), joint.GetAnchorB().get_y(), .05);
+        }
+    }
+}
+
+/**
+ * Affiche un corps Box2D en mode debug
+ * @param {RenderContext} wCtx
+ * @param {Box2D.b2Body} body
+ */
+function renderDebugBody(wCtx, body) {
+    let shape = body.GetFixtureList().GetShape();
+    wCtx.drawCircle("#0000ff", body.GetPosition().get_x(), body.GetPosition().get_y(), shape.get_m_radius(), false, .05);
+    if (shape.GetType() == Box2D.b2Shape.e_polygon) {
+        let polygon = Box2D.castObject(shape, Box2D.b2PolygonShape);
+        let xs = [], ys = [];
+        for (let i = 0; i < polygon.GetVertexCount(); i++) {
+            let vertex = body.GetWorldPoint(polygon.GetVertex(i));
+            xs.push(vertex.get_x());
+            ys.push(vertex.get_y());
+        }
+        wCtx.drawLines("#0000ff", xs, ys, .05, true);
+    }
+    wCtx.drawText(body.GetMass().toFixed(2) + "kg", body.GetPosition().get_x(), body.GetPosition().get_y(), .4, "white", 0, "black", "center");
 }
 
 /**
